@@ -12,15 +12,16 @@ function Header() {
   return (
 
     <>
-      <div className="p-3 flex justify-between items-center">
-        <div className="flex items-center">
-          <img src="https://img.freepik.com/free-vector/open-book-book-day-icon_24640-133872.jpg?semt=ais_hybrid&w=740" alt="" style={{ width: "60px", height: "60px" }} />
-          <h1 className='flex md:hidden font-bold'>BOOK STORE</h1>
+<div 
+  className="p-3 flex justify-between items-center" style={{ backgroundImage: 'linear-gradient(90deg, #00C9FF 0%, #92FE9D 100%)' }}>
+          <div className="flex items-center">
+          <img src="logo2.png" alt="" style={{ width: "340px", height: "110px" }} />
+          {/* <h1 className='flex md:hidden font-bold'>BOOK STORE</h1> */}
 
         </div>
-        <div className='ms-35'>
-          <h1 className='text-3xl hidden md:flex font-bold'>BOOK STORE</h1>
-        </div>
+        {/* <div className='ms-35'>
+          <h1 className='text-3xl hidden md:flex font-bold'>TeamAxis</h1>
+        </div> */}
         <div className=' items-center hidden md:flex'>
           {/* <FaInstagram className='text-2xl me-3' />
           <CiFacebook className='text-2xl me-3' />
@@ -76,12 +77,12 @@ function Header() {
             </div>}
           </div>
         </div>
-        <ul className={clickStatus ? 'md:flex text-white' : 'md:flex hidden justify-center text-white gap-10'}>
+        {/* <ul className={clickStatus ? 'md:flex text-white' : 'md:flex hidden justify-center text-white gap-10'}>
           <Link to={"/"}> <li>Home</li></Link>
           <Link to={""}> <li>Books</li></Link>
           <Link to={""}><li>Careers</li></Link>
           <Link to={""}><li>Contact</li></Link>
-        </ul>
+        </ul> */}
       </nav>
     </>
   )

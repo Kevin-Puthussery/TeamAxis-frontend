@@ -1,7 +1,7 @@
 import React from 'react'
 import HorizontalProgressBar from './HorizontalProgressBar';
 
-function EditTaskUser() {
+function EditTaskUser({onClose}) {
     // Note: handleClose is defined but the modal closing logic is incomplete (it just logs to console).
     // In a real app, this should involve setting state to hide the modal.
     const handleClose = () => {
@@ -14,7 +14,7 @@ function EditTaskUser() {
             tabIndex="-1"
             aria-hidden="true"
             className="fixed top-0 left-0 z-50 w-full h-full overflow-y-auto overflow-x-hidden flex justify-center items-start pt-20 bg-gray-900 bg-opacity-50"
-            onClick={handleClose}
+            onClick={onClose}
         >
             <div
                 // Increased max-w-md to max-w-lg to give the form more breathing room, matching the look in the image.
@@ -31,7 +31,7 @@ function EditTaskUser() {
                         <button
                             type="button"
                             className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-700 dark:hover:text-white"
-                            onClick={handleClose}
+                            onClick={onClose}
                         >
                             <svg className="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
                                 <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
@@ -95,7 +95,8 @@ function EditTaskUser() {
                             {/* Task Completion (Spans 2 columns) */}
                             <div className="col-span-2">
                                 <label className="block text-sm font-medium text-gray-900 dark:text-white mb-2">Task Completion (10%)</label>
-                                <HorizontalProgressBar progress={10} fillColor="bg-green-500" />
+                                {/* <HorizontalProgressBar progress={10} fillColor="bg-green-500" /> */}
+                                <input type="range" />
                             </div>
                             <div></div>
                         </div>

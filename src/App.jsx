@@ -11,9 +11,9 @@ function App() {
     <Header/>
     {/* <Login/> */}
     {/* <UserTable/> */}
-    {/* <UserScreen/> */}
-    <AdminScreen/>
-    <Footer/>
+    <UserScreen/>
+    {/* <AdminScreen/> */}
+    {/* <Footer/> */}
     </>
   )
 }

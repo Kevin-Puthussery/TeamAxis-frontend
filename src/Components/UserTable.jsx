@@ -9,7 +9,7 @@ const [open,setOpen] = useState(false)
         <>
 
 
-            <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+            <div class={`relative overflow-x-auto shadow-md sm:rounded-lg min-w-full max-w-screen min-h-full max-h-screen `}>
                 <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
                     <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                         <tr>
@@ -61,7 +61,7 @@ const [open,setOpen] = useState(false)
                             </td>
                             
                             <td class="flex items-center px-5 py-4">
-                                <a href="#" onClick={ () => setOpen(!open) } class="font-xl text-blue-600 dark:text-blue-500 hover:underline"><FaEdit />Edit</a>
+                                <a href="#" onClick={ () => setOpen(true) } class="font-xl text-blue-600 dark:text-blue-500 hover:underline"><FaEdit />Edit</a>
                                 <a href="#" class="font-medium text-red-600 dark:text-red-500 hover:underline ms-3">Remove </a>
                             </td>
                         </tr>
@@ -89,7 +89,7 @@ const [open,setOpen] = useState(false)
                             </td>
                            
                             <td class="flex items-center px-6 py-4">
-                                <a href="#" onClick={ () => setOpen(!open) } class="font-medium text-blue-600 dark:text-blue-500 hover:underline"><FaEdit />Edit</a>
+                                <a href="#" onClick={ () => setOpen(true) } class="font-medium text-blue-600 dark:text-blue-500 hover:underline"><FaEdit />Edit</a>
                                 <a href="#" class="font-medium text-red-600 dark:text-red-500 hover:underline ms-3">Remove</a>
                             </td>
                         </tr>
@@ -145,7 +145,7 @@ const [open,setOpen] = useState(false)
                             </td>
                             
                             <td class="flex items-center px-6 py-4">
-                                <a href="#" onClick={ () => setOpen(!open) } class="font-medium text-blue-600 dark:text-blue-500 hover:underline"><FaEdit />Edit</a>
+                                <a href="#" onClick={ () => setOpen(true) } class="font-medium text-blue-600 dark:text-blue-500 hover:underline"><FaEdit />Edit</a>
                                 <a href="#" class="font-medium text-red-600 dark:text-red-500 hover:underline ms-3">Remove</a>
                             </td>
                         </tr>
@@ -173,7 +173,7 @@ const [open,setOpen] = useState(false)
                             </td>
                             
                             <td class="flex items-center px-6 py-4">
-                                <a href="#" onClick={ () => setOpen(!open) } class="font-medium text-blue-600 dark:text-blue-500 hover:underline"><FaEdit />Edit</a>
+                                <a href="#" onClick={ () => setOpen(true) } class="font-medium text-blue-600 dark:text-blue-500 hover:underline"><FaEdit />Edit</a>
                                 <a href="#" class="font-medium text-red-600 dark:text-red-500 hover:underline ms-3">Remove</a>
                             </td>
                         </tr>
@@ -201,7 +201,7 @@ const [open,setOpen] = useState(false)
                             </td>
                             
                             <td class="flex items-center px-6 py-4">
-                                <a href="#" onClick={ () => setOpen(!open) } class="font-medium text-blue-600 dark:text-blue-500 hover:underline"><FaEdit />Edit</a>
+                                <a href="#" onClick={ () => setOpen(true) } class="font-medium text-blue-600 dark:text-blue-500 hover:underline"><FaEdit />Edit</a>
                                 <a href="#" class="font-medium text-red-600 dark:text-red-500 hover:underline ms-3">Remove</a>
                             </td>
                         </tr>
@@ -229,7 +229,7 @@ const [open,setOpen] = useState(false)
                             </td>
                             
                             <td class="flex items-center px-6 py-4">
-                                <a href="#" onClick={ () => setOpen(!open) } class="font-medium text-blue-600 dark:text-blue-500 hover:underline"><FaEdit />Edit</a>
+                                <a href="#" onClick={ () => setOpen(true) } class="font-medium text-blue-600 dark:text-blue-500 hover:underline"><FaEdit />Edit</a>
                                 <a href="#" class="font-medium text-red-600 dark:text-red-500 hover:underline ms-3">Remove</a>
                             </td>
                         </tr>
@@ -257,7 +257,7 @@ const [open,setOpen] = useState(false)
                             </td>
                             
                             <td class="flex items-center px-6 py-4">
-                                <a href="#" onClick={ () => setOpen(!open) } class="font-medium text-blue-600 dark:text-blue-500 hover:underline"><FaEdit />Edit</a>
+                                <a href="#" onClick={ () => setOpen(true) } class="font-medium text-blue-600 dark:text-blue-500 hover:underline"><FaEdit />Edit</a>
                                 <a href="#" class="font-medium text-red-600 dark:text-red-500 hover:underline ms-3">Remove</a>
                             </td>
                         </tr>
@@ -285,7 +285,7 @@ const [open,setOpen] = useState(false)
                             </td>
                             
                             <td class="flex items-center px-6 py-4">
-                                <a href="#" onClick={ () => setOpen(!open) } class="font-medium text-blue-600 dark:text-blue-500 hover:underline"><FaEdit />Edit</a>
+                                <a href="#" onClick={ () => setOpen(true) } class="font-medium text-blue-600 dark:text-blue-500 hover:underline"><FaEdit />Edit</a>
                                 <a href="#" class="font-medium text-red-600 dark:text-red-500 hover:underline ms-3">Remove</a>
                             </td>
                         </tr>
@@ -313,13 +313,13 @@ const [open,setOpen] = useState(false)
                             </td>
                             
                             <td class="flex items-center px-6 py-4">
-                                <a href="#" onClick={ () => setOpen(!open) } class="font-medium text-blue-600 dark:text-blue-500 hover:underline"><FaEdit />Edit</a>
+                                <a href="#" onClick={ () => setOpen(true) } class="font-medium text-blue-600 dark:text-blue-500 hover:underline"><FaEdit />Edit</a>
                                 <a href="#" class="font-medium text-red-600 dark:text-red-500 hover:underline ms-3">Remove</a>
                             </td>
                         </tr>
                     </tbody>
                 </table>
-                {open ? <UserEditComponent/> : ""}
+                {open && <UserEditComponent onClose={()=>setOpen(false)}/> }
             </div>
 
         </>

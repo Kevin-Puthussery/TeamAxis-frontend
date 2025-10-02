@@ -581,7 +581,7 @@ function AdminScreen() {
                     Manage Users
                 </button>
             </div>
-            {open ? <CreateTaskAdmin /> : ""}
+            {open ? <CreateTaskAdmin onClose={()=> setOpen(false)} /> : ""}
         </div>
     );
 }

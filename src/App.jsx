@@ -10,8 +10,8 @@ function App() {
     <>
     <Header/>
     {/* <Login/> */}
-    {/* <UserTable/> */}
-    <UserScreen/>
+    <UserTable/>
+    {/* <UserScreen/> */}
     {/* <AdminScreen/> */}
     {/* <Footer/> */}
     </>

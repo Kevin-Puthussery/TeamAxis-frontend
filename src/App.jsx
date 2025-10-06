@@ -9,27 +9,22 @@ import UserScreen from "./Components/UserScreen"
 import UserTable from "./Components/UserTable"
 import Login from "./Pages/Login"
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-
 function App() {
   return (
     <>
-    <Router>
+    {/* <Router> */}
       <Routes>
         <Route index path="/"  element={<Login></Login>}/>
-        <Route index path="/user/home"  element={<UserScreen/>}/>
-        <Route index path="/user/create"  element={<CreateTaskUser/>}/>
-        <Route index path="/user/edit"  element={<EditTaskUser/>}/>
-        <Route index path="/admin/home"  element={<AdminScreen/>}/>
-        <Route index path="/admin/create"  element={<CreateTaskAdmin/>}/>
-        <Route index path="/admin/user"  element={<UserTable/>}/>
-
-        <Route index path="/admin/edit"  element={<UserEditComponent/>}/>
-
-
+        <Route path="/user/home"  element={<UserScreen/>}/>
+        <Route path="/user/create"  element={<CreateTaskUser/>}/>
+        <Route path="/user/edit"  element={<EditTaskUser/>}/>
+        <Route path="/admin/home"  element={<AdminScreen/>}/>
+        <Route path="/admin/create"  element={<CreateTaskAdmin/>}/>
+        <Route path="/admin/user"  element={<UserTable/>}/>
+        <Route path="/admin/edit"  element={<UserEditComponent/>}/>
       </Routes>
-    </Router>
+    {/* </Router> */}
     </>
   )
 }
-
 export default App

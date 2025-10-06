@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 // import { FaRegUser } from "react-icons/fa";
+import logo from '../../public/logo2.png'
 
 function Header() {
   const [clickStatus, setClickStatus] = useState(false)
@@ -13,7 +14,7 @@ function Header() {
         style={{ backgroundImage: 'linear-gradient(90deg, #00C9FF 0%, #92FE9D 100%)' }}
       >
         <div className="flex items-center">
-          <img src="logo2.png" alt="" style={{ width: "340px", height: "110px" }} />
+          <img src={logo} alt="logo" style={{ width: "340px", height: "110px" }} />
         </div>
 
         {/* Desktop user icon with dropdown */}

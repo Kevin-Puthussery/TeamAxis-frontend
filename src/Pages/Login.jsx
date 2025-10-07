@@ -1,4 +1,5 @@
 import axios from "axios"
+import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 
 function Login() {
@@ -9,13 +10,17 @@ function Login() {
     const verifyUser=async()=>{
         try{
         const resp=await axios.post('http://localhost:3000/api/user/signin',{
-            username,
-            password
+            username:username,
+            password:password
         })
-        localStorage.setItem("token",resp.data.token)}
-        finally{
+            if(resp.data){
+            localStorage.setItem("token",resp.data.token)
             navigate("/admin/home")
-        }
+            }
+    }
+catch(e){
+    console.log(e)
+}
     }
     return (
         <>
@@ -44,10 +49,10 @@ function Login() {
                             {/* <h1 class="text-2xl font-extrabold text-gray-800 text-center">Sign in to continue to your dashboard</h1> */}
                             <p class="text-sm text-gray-500 text-center">Sign in to continue to your dashboard</p>
 
-                            <form class="space-y-5" action="#">
+                            <form class="space-y-5" >
                                 <div>
                                     <label for="email" class="block mb-2 text-sm font-medium text-gray-700">Email</label>
-                                    <input type="email" onChange={(e)=>setUname(e.target.value)} value={username} name="email" id="email" placeholder="name@company.com" required
+                                    <input type="text" onChange={(e)=>setUname(e.target.value)} value={username} name="email" id="email" placeholder="name@company.com" required
                                         class="w-full p-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-purple-400 transition duration-200" />
                                 </div>
 
@@ -65,7 +70,7 @@ function Login() {
                                     <a href="#" class="text-sm text-purple-500 hover:underline">Forgot password?</a>
                                 </div>
 
-                                <button type="submit" onClick={verifyUser()}
+                                <button type="button" onClick={()=>verifyUser()}
                                     class="w-full bg-purple-500 hover:bg-purple-600 text-white py-3 rounded-xl font-semibold shadow-md transition duration-200">Sign In</button>
 
                                 {/* <p class="text-center text-sm text-gray-500">

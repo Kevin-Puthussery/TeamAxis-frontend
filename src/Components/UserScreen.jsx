@@ -2,6 +2,7 @@ import React, { useState } from 'react'; // 1. Import useState
 import HorizontalProgressBar from './HorizontalProgressBar';
 import CreateTaskUser from "./CreateTaskUser"; // The modal component
 import EditTaskUser from './EditTaskUser';
+import Header from './Header';
 
 function UserScreen() {
     // 2. State to manage modal visibility
@@ -17,6 +18,7 @@ function UserScreen() {
 
     return (
         <>
+        <Header/>
             <div className="min-h-screen bg-gray-50 p-8">
                 {/* 🔝 Header */}
                 <div className="flex flex-col md:flex-row items-center justify-center text-center text-2xl mb-10 space-y-4 md:space-y-0 md:space-x-12">

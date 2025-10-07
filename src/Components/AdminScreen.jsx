@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import CreateTaskAdmin from "./CreateTaskAdmin";
 import HorizontalProgressBar from "./HorizontalProgressBar";
+import Header from "./Header";
 
 function AdminScreen() {
     const [filter, setFilter] = useState("all"); // all | pending | completed
@@ -21,6 +22,10 @@ function AdminScreen() {
 
 
     return (
+        <>
+        <Header/>
+        
+       
         <div className="min-h-screen bg-gray-50 flex flex-col items-center px-6 py-10 space-y-10">
             {/* Project Info */}
             <div className="text-center space-y-3">
@@ -583,6 +588,7 @@ function AdminScreen() {
             </div>
             {open ? <CreateTaskAdmin onClose={()=> setOpen(false)} /> : ""}
         </div>
+         </>
     );
 }
 

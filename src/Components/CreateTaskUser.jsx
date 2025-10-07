@@ -1,6 +1,6 @@
 import React from 'react'
 
-function CreateTaskAdmin({onClose}) {
+function CreateTaskUser({onClose}) {
     
     
     const handleClose = () => {
@@ -91,4 +91,4 @@ function CreateTaskAdmin({onClose}) {
     )
 }
 
-export default CreateTaskAdmin
+export default CreateTaskUser

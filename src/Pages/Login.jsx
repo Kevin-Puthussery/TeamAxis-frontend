@@ -13,9 +13,18 @@ function Login() {
             username:username,
             password:password
         })
-            if(resp.data){
+            if(resp.data.admin){
             localStorage.setItem("token",resp.data.token)
+            localStorage.setItem("role","admin")
             navigate("/admin/home")
+            }
+            else if(resp.data.user){
+            localStorage.setItem("token",resp.data.token)
+            localStorage.setItem("uid",resp.data.userId)
+            localStorage.setItem("role","user")
+
+            navigate("/user/home")
+
             }
     }
 catch(e){

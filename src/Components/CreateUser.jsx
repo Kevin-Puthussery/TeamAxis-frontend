@@ -1,7 +1,28 @@
-import React from 'react'
+import axios from 'axios';
+import React, { useState } from 'react'
 
-function CreateUser({ onClose }) {
+function CreateUser({ onClose,fetch }) {
 
+    const [fullName,setName]=useState("")
+    const [password,setPassword]=useState("")
+    const [username,setUname]=useState("")
+    const [department,setDept]=useState("")
+
+    const CreateUser=async()=>{
+        const UserCreated=await axios.post('http://localhost:3000/api/user/register',{
+            username,
+            password,
+            department,
+            fullName
+        },{
+            headers:{
+                Authorization:localStorage.getItem("token")
+            }
+        })
+        onClose()
+        fetch()
+
+    }
     const handleClose = () => {
         console.log("Modal Close action triggered.");
         onClose();
@@ -42,10 +63,12 @@ function CreateUser({ onClose }) {
                     <form className="p-4 md:p-5">
                         <div className="grid gap-4 mb-4 grid-cols-2">
                             <div className="col-span-2">
-                                <label htmlFor="name" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Name</label>
+                                <label htmlFor="name" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Name <span className='text-red-500'>*</span></label>
                                 <input
                                     type="text"
                                     name="name"
+                                    onChange={(e)=>setName(e.target.value)}
+                                    value={fullName}
                                     id="name"
                                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
                                     placeholder="Enter user name"
@@ -54,10 +77,12 @@ function CreateUser({ onClose }) {
                             </div>
 
                             <div className="col-span-2">
-                                <label htmlFor="name" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Password</label>
+                                <label htmlFor="name" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Password <span className='text-red-500'>*</span></label>
                                 <input
                                     type="password"
                                     name="name"
+                                    onChange={(e)=>setPassword(e.target.value)}
+                                    value={password}
                                     id="name"
                                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
                                     placeholder="Enter password"
@@ -66,9 +91,11 @@ function CreateUser({ onClose }) {
                             </div>
 
                             <div className="col-span-2">
-                                <label htmlFor="name" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Email Id</label>
+                                <label htmlFor="name" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Email Id <span className='text-red-500'>*</span></label>
                                 <input
                                     type="email"
+                                    onChange={(e)=>setUname(e.target.value)}
+                                    value={username}
                                     name="name"
                                     id="name"
                                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
@@ -77,15 +104,17 @@ function CreateUser({ onClose }) {
                             </div>
 
                             <div className="col-span-2">
-                                <label htmlFor="category" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Department</label>
+                                <label htmlFor="category" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Department <span className='text-red-500'>*</span></label>
                                 <select
                                     id="category"
+                                    onChange={(e)=>setDept(e.target.value)}
+                                    value={department}
                                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
                                 >
                                     <option value="Sales">Sales</option>
                                     <option value="IT">IT</option>
-                                    <option value="Finance">Finance</option>
-                                    <option value="Support">Support</option>
+                                    <option value="Testing">Testing</option>
+                                    <option value="QA">QA</option>
                                 </select>
                             </div>
 
@@ -93,7 +122,8 @@ function CreateUser({ onClose }) {
                         </div>
 
                         <button
-                            type="submit"
+                            type="button"
+                            onClick={()=>CreateUser()}
                             className="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
                         >
                             Create User <span className='p-1'>+</span>

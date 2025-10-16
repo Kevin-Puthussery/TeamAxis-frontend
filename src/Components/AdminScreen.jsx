@@ -1,10 +1,13 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import CreateTaskAdmin from "./CreateTaskAdmin";
 import HorizontalProgressBar from "./HorizontalProgressBar";
 import Header from "./Header";
+import { useNavigate } from "react-router-dom";
 
 function AdminScreen() {
     const [filter, setFilter] = useState("all"); // all | pending | completed
+    const navigate=useNavigate()
+    
 
     const tasks = [
         { id: 1, title: "Task 1", status: "pending" },
@@ -19,6 +22,8 @@ function AdminScreen() {
 
     const [open, setOpen] = useState(false)
 
+    
+
 
 
     return (
@@ -29,7 +34,7 @@ function AdminScreen() {
         <div className="min-h-screen bg-gray-50 flex flex-col items-center px-6 py-10 space-y-10">
             {/* Project Info */}
             <div className="text-center space-y-3">
-                <h2 className="text-3xl font-semibold text-gray-800">Project Name :</h2>
+                <h2 className="text-3xl font-semibold text-gray-800">Project Name : Project 1</h2>
                 <div className="w-full max-w-4xl h-48 bg-gray-300 flex items-center justify-center text-gray-700 text-2xl font-medium rounded-lg shadow-inner">
                     Project Level Dashboard
                 </div>
@@ -582,7 +587,7 @@ function AdminScreen() {
                 <button onClick={() => setOpen(!open)} className="px-10 py-4 bg-blue-600 hover:bg-blue-700 text-white text-xl font-semibold rounded-lg shadow-md transition-all">
                     Create Task +
                 </button>
-                <button className="px-10 py-4 bg-orange-500 hover:bg-orange-600 text-white text-xl font-semibold rounded-lg shadow-md transition-all">
+                <button onClick={()=>navigate("/admin/user")} className="px-10 py-4 bg-orange-500 hover:bg-orange-600 text-white text-xl font-semibold rounded-lg shadow-md transition-all">
                     Manage Users
                 </button>
             </div>

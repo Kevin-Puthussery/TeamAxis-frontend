@@ -1,19 +1,39 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import UserEditComponent from './UserEditComponent'
 import CreateUser from './CreateUser'
 import { FaEdit, FaUserPlus } from 'react-icons/fa'
 import Header from './Header'
+import TableData from './TableData'
+import axios from 'axios'
 
 function UserTable() {
 
     const [openEditModal, setOpenEditModal] = useState(false)
     const [openCreateModal, setOpenCreateModal] = useState(false)
+    const [uid,setUid]=useState("")
 
-    const openEdit = () => setOpenEditModal(true)
+    const openEdit = (id) => {
+        setOpenEditModal(true)
+        setUid(id)
+    }
     const closeEdit = () => setOpenEditModal(false)
 
     const openCreate = () => setOpenCreateModal(true)
     const closeCreate = () => setOpenCreateModal(false)
+
+    const [user,setUser]=useState([])
+    const FetchUser=async()=>{
+                const AllUser=await axios.get("http://localhost:3000/api/user/view",{
+                    headers:{
+                        Authorization:localStorage.getItem("token")
+                    }
+                })
+                setUser(AllUser.data.UserwtDept)
+    
+            }
+    useEffect(()=>{
+            FetchUser()
+        },[])
 
     return (
         <>
@@ -21,7 +41,7 @@ function UserTable() {
                 <Header />
 
                 <div className='flex justify-center p-4'>
-                    <div className='w-3/4 max-w-7xl'>
+                    <div className='w-3/4 max-w-7xl min-h-lvh'>
 
                         {/* Search bar and Create User button */}
                         <div className="flex items-center justify-between flex-column flex-wrap md:flex-row space-y-4 md:space-y-0 pb-4">
@@ -59,92 +79,20 @@ function UserTable() {
                                         <th className="p-4"></th>
                                         <th className="px-6 py-3 text-xl font-bold">Username</th>
                                         <th className="px-6 py-3 text-xl font-bold">Email Id</th>
-                                        <th className="px-6 py-3 text-xl font-bold">Password</th>
                                         <th className="px-6 py-3 text-xl font-bold">Department</th>
                                         <th className="px-6 py-3 text-xl font-bold">Status</th>
                                         <th className="px-6 py-3 text-xl font-bold">Action</th>
                                     </tr>
                                 </thead>
-                                <tbody>
-                                    <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
-                                        <td className="w-4 p-4"></td>
-                                        <th className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">John Doe</th>
-                                        <td className="px-6 py-4">john@example.com</td>
-                                        <td className="px-6 py-4">••••••</td>
-                                        <td className="px-6 py-4">IT</td>
-                                        <td className="px-6 py-4">Active</td>
-                                        <td className="flex items-center px-5 py-4 gap-6">
-                                            <a href="#" onClick={(e) => { e.preventDefault(); openEdit(); }} className="font-medium text-blue-600 dark:text-blue-500 hover:underline flex items-center">
-                                                <FaEdit className="me-1" /> Edit
-                                            </a>
-                                            <a href="#" className="font-medium text-red-600 dark:text-red-500 hover:underline ms-3">Remove</a>
-                                        </td>
-                                    </tr>
-                                    <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
-                                        <td className="w-4 p-4"></td>
-                                        <th className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">John Doe</th>
-                                        <td className="px-6 py-4">john@example.com</td>
-                                        <td className="px-6 py-4">••••••</td>
-                                        <td className="px-6 py-4">IT</td>
-                                        <td className="px-6 py-4">Active</td>
-                                        <td className="flex items-center px-5 py-4 gap-6">
-                                            <a href="#" onClick={(e) => { e.preventDefault(); openEdit(); }} className="font-medium text-blue-600 dark:text-blue-500 hover:underline flex items-center">
-                                                <FaEdit className="me-1" /> Edit
-                                            </a>
-                                            <a href="#" className="font-medium text-red-600 dark:text-red-500 hover:underline ms-3">Remove</a>
-                                        </td>
-                                    </tr>
-                                    <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
-                                        <td className="w-4 p-4"></td>
-                                        <th className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">John Doe</th>
-                                        <td className="px-6 py-4">john@example.com</td>
-                                        <td className="px-6 py-4">••••••</td>
-                                        <td className="px-6 py-4">IT</td>
-                                        <td className="px-6 py-4">Active</td>
-                                        <td className="flex items-center px-5 py-4 gap-6">
-                                            <a href="#" onClick={(e) => { e.preventDefault(); openEdit(); }} className="font-medium text-blue-600 dark:text-blue-500 hover:underline flex items-center">
-                                                <FaEdit className="me-1" /> Edit
-                                            </a>
-                                            <a href="#" className="font-medium text-red-600 dark:text-red-500 hover:underline ms-3">Remove</a>
-                                        </td>
-                                    </tr>
-                                    <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
-                                        <td className="w-4 p-4"></td>
-                                        <th className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">John Doe</th>
-                                        <td className="px-6 py-4">john@example.com</td>
-                                        <td className="px-6 py-4">••••••</td>
-                                        <td className="px-6 py-4">IT</td>
-                                        <td className="px-6 py-4">Active</td>
-                                        <td className="flex items-center px-5 py-4 gap-6">
-                                            <a href="#" onClick={(e) => { e.preventDefault(); openEdit(); }} className="font-medium text-blue-600 dark:text-blue-500 hover:underline flex items-center">
-                                                <FaEdit className="me-1" /> Edit
-                                            </a>
-                                            <a href="#" className="font-medium text-red-600 dark:text-red-500 hover:underline ms-3">Remove</a>
-                                        </td>
-                                    </tr>
-                                    <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
-                                        <td className="w-4 p-4"></td>
-                                        <th className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">John Doe</th>
-                                        <td className="px-6 py-4">john@example.com</td>
-                                        <td className="px-6 py-4">••••••</td>
-                                        <td className="px-6 py-4">IT</td>
-                                        <td className="px-6 py-4">Active</td>
-                                        <td className="flex items-center px-5 py-4 gap-6">
-                                            <a href="#" onClick={(e) => { e.preventDefault(); openEdit(); }} className="font-medium text-blue-600 dark:text-blue-500 hover:underline flex items-center">
-                                                <FaEdit className="me-1" /> Edit
-                                            </a>
-                                            <a href="#" className="font-medium text-red-600 dark:text-red-500 hover:underline ms-3">Remove</a>
-                                        </td>
-                                    </tr>
-                                </tbody>
+                                {user.map((item)=><TableData data={item} openEdit={openEdit}/>)}
                             </table>
                         </div>
                     </div>
                 </div>
 
                 {/* ✅ Modals */}
-                {openEditModal && <UserEditComponent onClose={closeEdit} />}
-                {openCreateModal && <CreateUser onClose={closeCreate} />}
+                {openEditModal && <UserEditComponent fetch={FetchUser} onClose={closeEdit} id={uid}/>}
+                {openCreateModal && <CreateUser fetch={FetchUser} onClose={closeCreate} />}
             </div>
         </>
     )

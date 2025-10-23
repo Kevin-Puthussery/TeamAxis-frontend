@@ -1,20 +1,80 @@
-import React, { useState } from 'react'; // 1. Import useState
+import React, { useEffect, useState } from 'react'; // 1. Import useState
 import HorizontalProgressBar from './HorizontalProgressBar';
 import CreateTaskUser from "./CreateTaskUser"; // The modal component
 import EditTaskUser from './EditTaskUser';
 import Header from './Header';
+import { FaFilePdf } from 'react-icons/fa';
+import axios from 'axios'
+import PendingTask from './PendingTask';
+import CompletedTask from './CompletedTask';
+import { jsPDF } from 'jspdf';
+
 
 function UserScreen() {
     // 2. State to manage modal visibility
     const [isModalOpenc, setIsModalcOpen] = useState(false);
     const [isModalOpene, setIsModaleOpen] = useState(false);
-
+    const [id,setId]=useState()
     // 3. Handlers to open and close the modal
     const openModalc = () => setIsModalcOpen(true);
     const closeModalc = () => setIsModalcOpen(false);
 
-    const openModale = () => setIsModaleOpen(true);
+    const openModale = (id) =>{ 
+        setIsModaleOpen(true);
+        setId(id)
+    }
     const closeModale = () => setIsModaleOpen(false);
+
+    const downloadTaskPDF = (task) => {
+        const doc = new jsPDF();
+        doc.setFontSize(16);
+        doc.text("Task Details", 105, 15, null, null, "center");
+
+        doc.setFontSize(12);
+        doc.text(`Title: ${task.name}`, 20, 30);
+        doc.text(`Description: ${task.description}`, 20, 40);
+        doc.text(`Start Date: ${task.startDate}`, 20, 50);
+        doc.text(`End Date: ${task.endDate}`, 20, 60);
+        doc.text(`Completion: ${task.progess}%`, 20, 70);
+        // doc.text(`Attachment: ${task.attachment}`, 20, 80);
+
+        doc.save(`${task.name}.pdf`);
+    };
+    const [dep,setDep]=useState([])
+    
+    const fetchdep=async()=>{
+        const token=localStorage.getItem("token")
+    const uid=localStorage.getItem("uid")
+        const dep=await axios.get("http://localhost:3000/api/user/view",{
+            headers:{
+                Authorization:token
+            }
+        })
+        const CurrentUser=dep.data.UserwtDept
+        setDep(CurrentUser.filter((item)=>item._id===uid))    
+    }
+    
+
+    const [task,setTask]=useState([])
+
+    const fetchTask=async()=>{
+        const depId = dep[0]?.depId
+        if(!depId) return
+        const Tasklist=await axios.get(`http://localhost:3000/api/task/view?filter=${depId}`,{
+            headers:{
+                Authorization:localStorage.getItem("token")
+            }
+        })
+        setTask(Tasklist.data.task)
+    }
+    useEffect(()=>{
+        fetchdep()
+    },[])
+    useEffect(() => {
+  if (dep.length > 0) {
+    fetchTask();
+  }
+}, [dep]);
 
     return (
         <>
@@ -24,12 +84,12 @@ function UserScreen() {
                 <div className="flex flex-col md:flex-row items-center justify-center text-center text-2xl mb-10 space-y-4 md:space-y-0 md:space-x-12">
                     <div className="flex flex-col md:flex-row items-center text-lg font-semibold text-gray-800 space-y-2 md:space-y-0 md:space-x-12">
                         <p className='text-2xl'>
-                            Project Name :{" "}
+                            Project Name :
                             <span className="font-normal text-gray-600 ">Website Redesign</span>
                         </p>
                         <p className='text-2xl'>
-                            Department :{" "}
-                            <span className="font-normal text-gray-600">Development</span>
+                            Department :
+                            <span className="font-normal text-gray-600">{dep[0]?.department}</span>
                         </p>
                     </div>
 
@@ -44,137 +104,28 @@ function UserScreen() {
 
                 {/* 🕐 Pending Tasks */}
                 <section className="mb-12">
-                    <h2 className="text-2xl font-bold text-gray-800 mb-6">Pending Tasks</h2>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {[1, 2, 3].map((task) => (
-                            <div
-                                key={task}
-                                className="bg-white p-5 rounded-xl shadow-md border border-gray-200 flex flex-col justify-between"
-                            >
-                                {/* Task Card Content (Pending) */}
-                                <div className="mb-3">
-                                    <label className="block text-sm font-semibold text-gray-700">Title :</label>
-                                    <input
-                                        type="text"
-                                        placeholder="Enter task title"
-                                        className="w-full border border-gray-300 rounded-md px-3 py-2 mt-1 text-sm focus:outline-none focus:ring focus:ring-blue-300"
-                                        defaultValue={`Pending Task ${task}`}
-                                    />
-                                </div>
-                                {/* ... other fields ... */}
-                                <div className="mb-3">
-                                    <label className="block text-sm font-semibold text-gray-700">Description :</label>
-                                    <textarea
-                                        rows={2}
-                                        placeholder="Enter description"
-                                        className="w-full border border-gray-300 rounded-md px-3 py-2 mt-1 text-sm focus:outline-none focus:ring focus:ring-blue-300"
-                                        defaultValue={`Initial description for pending task ${task}.`}
-                                    ></textarea>
-                                </div>
-                                <div className="grid grid-cols-2 gap-3 mb-4">
-                                    <div>
-                                        <label className="block text-sm font-semibold text-gray-700">Start Date :</label>
-                                        <input type="date" className="w-full border border-gray-300 rounded-md px-3 py-2 mt-1 text-sm focus:outline-none focus:ring focus:ring-blue-300" />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-semibold text-gray-700">End Date :</label>
-                                        <input type="date" className="w-full border border-gray-300 rounded-md px-3 py-2 mt-1 text-sm focus:outline-none focus:ring focus:ring-blue-300" />
-                                    </div>
-
-                                </div>
-                                <div className="col-span-2">
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Task Completion (0%)</label>
-                                    <HorizontalProgressBar progress={0} fillColor="bg-green-500" />
-                                </div>
-                                <div className="mb-4">
-                                    <label className="block text-sm font-semibold text-gray-700">Attachments :</label>
-                                    <div className="mt-2 w-full border-2 border-dashed border-gray-300 rounded-md p-4 text-center text-sm text-gray-400 cursor-pointer hover:border-blue-400 hover:text-blue-500 transition">
-                                        📤 Drag & Drop file here
-                                        <div className="mt-2">
-                                            <button className="px-4 py-1 bg-blue-100 text-blue-600 text-sm rounded">Browse</button>
-                                        </div>
-                                    </div>
-                                </div>
-                                {/* Actions */}
-                                <div className="flex justify-between items-center mt-4">
-                                    <button onClick={openModale} className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm">
-                                        Edit
-                                    </button>
-                                    <button className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 text-sm">
-                                        Complete Task
-                                    </button>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
+                    <PendingTask task={task} openModale={openModale} fetchTask={fetchTask}/>
                 </section>
 
                 {/* --- */}
 
                 {/* ✅ Completed Tasks - VIEW ONLY */}
                 <section>
-                    <h2 className="text-2xl font-bold text-gray-800 mb-6">Completed Tasks</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {[1, 2, 3].map((task) => (
-                            <div
-                                key={task}
-                                className="bg-white p-5 rounded-xl shadow-md border border-gray-200"
-                            >
-                                {/* Task Card Content (Completed) */}
-                                <div className="mb-3">
-                                    <label className="block text-sm font-semibold text-gray-700">Title :</label>
-                                    <p className="mt-1 text-sm text-gray-800 bg-gray-100 px-3 py-2 rounded-md">
-                                        Completed Task #1{task}
-                                    </p>
-                                </div>
-                                <div className="mb-3">
-                                    <label className="block text-sm font-semibold text-gray-700">Description :</label>
-                                    <p className="mt-1 text-sm text-gray-800 bg-gray-100 px-3 py-2 rounded-md">
-                                        This task was successfully completed and reviewed.
-                                    </p>
-                                </div>
-                                <div className="grid grid-cols-2 gap-3 mb-4">
-                                    <div>
-                                        <label className="block text-sm font-semibold text-gray-700">Start Date :</label>
-                                        <p className="mt-1 text-sm text-gray-800 bg-gray-100 px-3 py-2 rounded-md">2025-09-01</p>
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-semibold text-gray-700">End Date :</label>
-                                        <p className="mt-1 text-sm text-gray-800 bg-gray-100 px-3 py-2 rounded-md">2025-09-15</p>
-                                    </div>
-                                    <div className="col-span-2"> {/* Made progress bar span two columns for better layout */}
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">Task Completion (100%)</label>
-                                        <HorizontalProgressBar progress={100} fillColor="bg-green-500" />
-                                    </div>
-                                </div>
-                                <div className="mb-4">
-                                    <label className="block text-sm font-semibold text-gray-700">Attachments :</label>
-                                    <div className="mt-2 flex items-center space-x-3 bg-gray-100 p-3 rounded-md">
-                                        <img
-                                            src="https://cdn-icons-png.flaticon.com/512/337/337946.png"
-                                            alt="PDF"
-                                            className="w-10 h-10"
-                                        />
-                                        <span className="text-sm text-gray-800">Report_{task}.pdf</span>
-                                    </div>
-                                </div>
-                                {/* ❌ No buttons here */}
-                            </div>
-                        ))}
-                    </div>
+                   <CompletedTask task={task} downloadTaskPDF={downloadTaskPDF}/>
                 </section>
             </div>
 
             {/* 5. Conditionally Render the Modal */}
             {isModalOpenc && (
                 <CreateTaskUser
+                fetchTask={fetchTask}
+                dep={dep[0]?.department}
                     onClose={closeModalc}
                 
                 />
             )}
             {isModalOpene && (
-                <EditTaskUser
+                <EditTaskUser id={id}
                     onClose={closeModale}
                 
                 />

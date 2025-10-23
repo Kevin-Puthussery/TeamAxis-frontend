@@ -1,7 +1,26 @@
-import React from 'react'
+import axios from 'axios';
+import React, { useState } from 'react'
 
-function CreateTaskUser({onClose}) {
-    
+function CreateTaskUser({onClose,fetchTask,dep}) {
+    const [name,setName]=useState()
+    const [desc,setDesc]=useState()
+    const [sDate,setsDate]=useState()
+    const [eDate,seteDate]=useState()
+
+
+    const addTask=async()=>{
+        await axios.post('http://localhost:3000/api/task/create',{
+            name:name,
+    description:desc,
+    startDate:sDate,
+    endDate:eDate,
+    department:dep
+        },{
+            headers:{
+                Authorization:localStorage.getItem("token")
+            }
+        })
+    }
     
     const handleClose = () => {
         console.log("Modal Close action triggered.");
@@ -45,7 +64,7 @@ function CreateTaskUser({onClose}) {
                         <div className="grid gap-4 mb-4 grid-cols-2">
                             <div className="col-span-2">
                                 <label htmlFor="name" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Title</label>
-                                <input type="text" name="name" id="name" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Name" required="" />
+                                <input type="text" onChange={(e)=>setName(e.target.value)} value={name} name="name" id="name" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Name" required="" />
                             </div>
                             <div className="col-span-2 sm:col-span-2">
                                 <label className="block text-sm font-semibold text-gray-700">
@@ -53,6 +72,8 @@ function CreateTaskUser({onClose}) {
                                 </label>
                                 <textarea
                                     rows={2}
+                                    onChange={(e)=>setDesc(e.target.value)} 
+                                    value={desc}
                                     placeholder="Enter description"
                                     className="w-full border border-gray-300 rounded-md px-3 py-2 mt-1 text-sm focus:outline-none focus:ring focus:ring-blue-300"
                                 ></textarea>
@@ -65,6 +86,7 @@ function CreateTaskUser({onClose}) {
                                         Start Date :
                                     </label>
                                     <input
+                                    onChange={(e)=>setsDate(e.target.value)} value={sDate}
                                         type="date"
                                         className="w-full border border-gray-300 rounded-md px-3 py-2 mt-1 text-sm focus:outline-none focus:ring focus:ring-blue-300"
                                     />
@@ -74,6 +96,7 @@ function CreateTaskUser({onClose}) {
                                         End Date :
                                     </label>
                                     <input
+                                    onChange={(e)=>seteDate(e.target.value)} value={eDate}
                                         type="date"
                                         className="w-full border border-gray-300 rounded-md px-3 py-2 mt-1 text-sm focus:outline-none focus:ring focus:ring-blue-300"
                                     />
@@ -81,7 +104,16 @@ function CreateTaskUser({onClose}) {
                             </div>
                            
                         </div>
-                        <button type="submit" className="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                        <button type="button" onClick={()=>{
+                            const task=addTask()
+                            if (task){
+                            fetchTask()
+                            onClose()
+                            }
+                            
+
+
+                        }} className="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
                             Create Task <span className='p-1'>+</span>
                         </button>
                     </form>

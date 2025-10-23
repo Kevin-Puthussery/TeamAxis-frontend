@@ -5,12 +5,54 @@ import { FaEdit, FaUserPlus } from 'react-icons/fa'
 import Header from './Header'
 import TableData from './TableData'
 import axios from 'axios'
+import { Bounce, ToastContainer, toast } from 'react-toastify';
 
 function UserTable() {
 
     const [openEditModal, setOpenEditModal] = useState(false)
     const [openCreateModal, setOpenCreateModal] = useState(false)
     const [uid,setUid]=useState("")
+    const notify = (value) =>{
+        if (value)
+        {toast.success('Sucess', {
+position: "top-right",
+autoClose: 2500,
+hideProgressBar: false,
+closeOnClick: false,
+pauseOnHover: true,
+draggable: true,
+progress: undefined,
+theme: "colored",
+transition: Bounce,})
+        }
+//         else if(value=="UserExist"){
+//             toast.warn('Active User Already Exist!', {
+// position: "top-right",
+// autoClose: 2500,
+// hideProgressBar: false,
+// closeOnClick: false,
+// pauseOnHover: true,
+// draggable: true,
+// progress: undefined,
+// theme: "colored",
+// transition: Bounce,
+// })
+
+//         }
+else{
+    toast.error('Failed!', {
+position: "top-right",
+autoClose: 2500,
+hideProgressBar: false,
+closeOnClick: false,
+pauseOnHover: true,
+draggable: true,
+progress: undefined,
+theme: "colored",
+transition: Bounce,
+});
+
+}};
 
     const openEdit = (id) => {
         setOpenEditModal(true)
@@ -22,18 +64,18 @@ function UserTable() {
     const closeCreate = () => setOpenCreateModal(false)
 
     const [user,setUser]=useState([])
+    const [filter,setFilter]=useState("")
     const FetchUser=async()=>{
-                const AllUser=await axios.get("http://localhost:3000/api/user/view",{
+                const AllUser=await axios.get("http://localhost:3000/api/user/view?filter="+filter.toLowerCase(),{
                     headers:{
                         Authorization:localStorage.getItem("token")
                     }
                 })
-                setUser(AllUser.data.UserwtDept)
-    
+                setUser(AllUser.data.UserwtDept?AllUser.data.UserwtDept:{})
             }
     useEffect(()=>{
-            FetchUser()
-        },[])
+            setTimeout(FetchUser(),1000)
+        },[filter])
 
     return (
         <>
@@ -53,7 +95,7 @@ function UserTable() {
                                     </svg>
                                 </div>
                                 <input
-                                    type="text"
+                                    type="text"onChange={(e)=>setFilter(e.target.value)}
                                     id="table-search-users"
                                     className="block p-2 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg w-80 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
                                     placeholder="Search for users"
@@ -88,12 +130,27 @@ function UserTable() {
                             </table>
                         </div>
                     </div>
+                    <ToastContainer
+position="top-right"
+autoClose={2500}
+hideProgressBar={false}
+newestOnTop={false}
+closeOnClick={false}
+rtl={false}
+pauseOnFocusLoss
+draggable
+pauseOnHover
+theme="colored"
+transition={Bounce}
+/>
                 </div>
 
                 {/* ✅ Modals */}
-                {openEditModal && <UserEditComponent fetch={FetchUser} onClose={closeEdit} id={uid}/>}
-                {openCreateModal && <CreateUser fetch={FetchUser} onClose={closeCreate} />}
+                {openEditModal && <UserEditComponent toast={notify} fetch={FetchUser} onClose={closeEdit} id={uid}/>}
+                {openCreateModal && <CreateUser toast={notify} fetch={FetchUser} onClose={closeCreate} />}
+                
             </div>
+            
         </>
     )
 }

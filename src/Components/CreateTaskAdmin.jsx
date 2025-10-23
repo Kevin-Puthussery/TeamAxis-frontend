@@ -1,10 +1,42 @@
 import React from 'react'
+import { useState } from 'react';
+import axios from 'axios';
 
-function CreateTaskAdmin({onClose}) {
+
+function CreateTaskAdmin({onClose,Toast,fetch}) {
     
     
     const handleClose = () => {
         console.log("Modal Close action triggered.");
+    }
+    const[title,setTitle]=useState()
+    const[Desc,setDesc]=useState()
+    const[dep,setDep]=useState("Sales")
+    const[sdate,setSdate]=useState()
+    const[edate,setEdate]=useState()
+
+    const Tasks={
+        name:title,
+        description:Desc,
+        department:dep,
+        startDate:sdate,
+        endDate:edate
+    }
+
+    const CreateTask=async()=>{
+        const response=await axios.post("http://localhost:3000/api/task/create",Tasks,{
+            headers:{
+                Authorization:localStorage.getItem("token")
+            }
+        })
+        onClose()
+        fetch()
+        if (response.data.msg){
+            Toast(true)
+        }
+        else{
+            Toast(false)
+        }
     }
 
     return (
@@ -44,44 +76,48 @@ function CreateTaskAdmin({onClose}) {
                     <form className="p-4 md:p-5">
                         <div className="grid gap-4 mb-4 grid-cols-2">
                             <div className="col-span-2">
-                                <label htmlFor="name" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Title</label>
-                                <input type="text" name="name" id="name" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Name" required="" />
+                                <label htmlFor="name" className="block mb-2 text-sm font-medium ">Title</label>
+                                <input type="text" name="name" onChange={(e)=>setTitle(e.target.value)} value={title} id="name" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Name" required="" />
                             </div>
                             <div className="col-span-2 sm:col-span-2">
-                                <label className="block text-sm font-semibold text-gray-700">
+                                <label className="block text-sm font-semibold ">
                                     Description :
                                 </label>
                                 <textarea
                                     rows={2}
                                     placeholder="Enter description"
+                                    onChange={(e)=>setDesc(e.target.value)} value={Desc}
                                     className="w-full border border-gray-300 rounded-md px-3 py-2 mt-1 text-sm focus:outline-none focus:ring focus:ring-blue-300"
                                 ></textarea>
                             </div>
                             <br />
                             <div className="col-span-1 sm:col-span-2">
-                                <label htmlFor="category" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Department</label>
-                                <select id="category" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
+                                <label htmlFor="category" className="block mb-2 text-sm font-medium">Department</label>
+                                <select id="category" onChange={(e)=>setDep(e.target.value)} value={dep} className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
                                     <option defaultValue="">Sales</option>
-                                    <option value="TV">IT</option>
-                                    <option value="PC">Finance</option>
-                                    <option value="GA">Support</option>
+                                    <option value="IT">IT</option>
+                                    <option value="Finance">Finance</option>
+                                    <option value="Testing">Testing</option>
+                                    <option value="QA">QA</option>
                                 </select>
                             </div>
                             <div className="grid grid-cols-2 gap-3 mb-4">
                                 <div>
-                                    <label className="block text-sm font-semibold text-gray-700">
+                                    <label className="block text-sm font-semibold">
                                         Start Date :
                                     </label>
                                     <input
                                         type="date"
+                                        onChange={(e)=>setSdate(e.target.value)} value={sdate}
                                         className="w-full border border-gray-300 rounded-md px-3 py-2 mt-1 text-sm focus:outline-none focus:ring focus:ring-blue-300"
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-semibold text-gray-700">
+                                    <label className="block text-sm font-semibold">
                                         End Date :
                                     </label>
                                     <input
+                                        onChange={(e)=>setEdate(e.target.value)} value={edate}
                                         type="date"
                                         className="w-full border border-gray-300 rounded-md px-3 py-2 mt-1 text-sm focus:outline-none focus:ring focus:ring-blue-300"
                                     />
@@ -89,7 +125,7 @@ function CreateTaskAdmin({onClose}) {
                             </div>
                            
                         </div>
-                        <button type="submit" className="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                        <button type="button" onClick={CreateTask} className="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
                             Create Task <span className='p-1'>+</span>
                         </button>
                     </form>

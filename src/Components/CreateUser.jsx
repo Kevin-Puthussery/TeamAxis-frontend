@@ -1,14 +1,15 @@
 import axios from 'axios';
 import React, { useState } from 'react'
 
-function CreateUser({ onClose,fetch }) {
+function CreateUser({ onClose,fetch,toast }) {
 
     const [fullName,setName]=useState("")
     const [password,setPassword]=useState("")
     const [username,setUname]=useState("")
-    const [department,setDept]=useState("")
+    const [department,setDept]=useState("Sales")
 
     const CreateUser=async()=>{
+        try{
         const UserCreated=await axios.post('http://localhost:3000/api/user/register',{
             username,
             password,
@@ -19,8 +20,16 @@ function CreateUser({ onClose,fetch }) {
                 Authorization:localStorage.getItem("token")
             }
         })
+
         onClose()
         fetch()
+        toast(true)
+    }
+        catch{
+            onClose()
+            fetch()
+            toast(false)
+        }
 
     }
     const handleClose = () => {

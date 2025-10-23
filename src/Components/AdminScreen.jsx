@@ -1,30 +1,146 @@
 import React, { useEffect, useState } from "react";
 import CreateTaskAdmin from "./CreateTaskAdmin";
-import HorizontalProgressBar from "./HorizontalProgressBar";
 import Header from "./Header";
 import { useNavigate } from "react-router-dom";
+import { Bounce, ToastContainer, toast } from 'react-toastify';
+import DepartmentWiseComponent from "./DepartmentWiseComponent";
+import axios from "axios";
+import { BarChart } from '@mui/x-charts/BarChart';
+import EditTaskAdmin from "./EditTaskAdmin";
+import { PieChart, pieArcLabelClasses } from '@mui/x-charts/PieChart';
+
+
 
 function AdminScreen() {
     const [filter, setFilter] = useState("all"); // all | pending | completed
+    const [openEdit, setOpenEdit] = useState(false);
+    const [currentTask, setCurrentTask] = useState(null);
     const navigate=useNavigate()
-    
 
-    const tasks = [
-        { id: 1, title: "Task 1", status: "pending" },
-        { id: 2, title: "Task 2", status: "completed" },
-        { id: 3, title: "Task 3", status: "pending" },
-        { id: 4, title: "Task 4", status: "completed" },
-    ];
+    const notify = (value) =>{
+        if (value)
+        {toast.success('Sucess', {
+position: "top-right",
+autoClose: 2500,
+hideProgressBar: false,
+closeOnClick: false,
+pauseOnHover: true,
+draggable: true,
+progress: undefined,
+theme: "colored",
+transition: Bounce,})
+        }
+else{
+    toast.error('Failed!', {
+position: "top-right",
+autoClose: 2500,
+hideProgressBar: false,
+closeOnClick: false,
+pauseOnHover: true,
+draggable: true,
+progress: undefined,
+theme: "colored",
+transition: Bounce,
+});
+
+}};
+    
+    const [tasks,setTask]=useState([])
 
     const filteredTasks = tasks.filter(
-        (task) => filter === "all" || task.status === filter
+        (task) => filter === "all" ?task : filter==="completed"?task.completed:!task.completed
     );
+    // const departement=["Sales","Finance","IT","Testing","QA"]
+
+    // const DepFilter=tasks.filter((task)=> 
+
+    // )
 
     const [open, setOpen] = useState(false)
 
+    const fetchTask=async()=>{
+        const AllTask=await axios.get('http://localhost:3000/api/task/view',{
+            headers:{
+                Authorization:localStorage.getItem("token")
+            }
+        })
+        setTask(AllTask.data.task)
+
+    }
+    useEffect(()=>{
+        fetchTask()
+    },[filter])
+
     
+    const barColors = ['#eb4034','#4CAF50', '#FFC107', '#2196F3','#9234eb'];
 
 
+
+    const [dep,setDep]=useState('68e75cbff12d684451c9def5')
+
+
+    const ChartData=tasks.filter((task)=>task.depId===dep)
+    const Progress=ChartData.map((task)=>task.progess)
+    const barData = Progress.map((item,i)=>`Task ${i+1}`)
+    const doDelete=async(id)=>{
+        await axios.delete(`http://localhost:3000/api/task/delete/${id}`,{
+            headers:{
+                Authorization:localStorage.getItem("token")
+            }
+        })
+
+    }
+
+    const handleDelete = async(id) => {
+    if (window.confirm("Are you sure you want to delete this task?")) {
+        const deleteOne=doDelete(id)
+        setTask((prev) => prev.filter((task) => task._id !== id));
+        if(deleteOne){
+            notify(true)
+        }
+        else{
+            notify(false)
+        }
+    }
+
+  };
+
+  const handleEdit = (task) => {
+    setCurrentTask(task);
+    setOpenEdit(true);
+  };
+
+  const handleCloseEdit = () => {
+    setOpenEdit(false);
+    setCurrentTask(null);
+  };
+
+  //pie chart
+const filteredForPie=tasks.filter((item)=> item.depId===dep)
+const pending=filteredForPie.filter((item)=> !item.completed).length
+const completed=filteredForPie.filter((item)=> item.completed).length
+ const total=pending+completed
+ const pendingConverted=(pending/total)*1000
+ const completedConverted=(completed/total)*1000
+
+
+  const data = [
+  { label: 'Pending', value: pendingConverted, color: '#0088FE' },
+  { label: 'Completed', value: completedConverted, color: '#00C49F' },
+];
+
+const sizing = {
+  margin: { right: 5 },
+  width: 200,
+  height: 200,
+  hideLegend: true,
+};
+const TOTAL = data.map((item) => item.value).reduce((a, b) => a + b, 0);
+
+const getArcLabel = (params) => {
+  const percent = params.value / TOTAL;
+  return `${(percent * 100).toFixed(0)}%`;
+};
 
     return (
         <>
@@ -35,8 +151,51 @@ function AdminScreen() {
             {/* Project Info */}
             <div className="text-center space-y-3">
                 <h2 className="text-3xl font-semibold text-gray-800">Project Name : Project 1</h2>
-                <div className="w-full max-w-4xl h-48 bg-gray-300 flex items-center justify-center text-gray-700 text-2xl font-medium rounded-lg shadow-inner">
-                    Project Level Dashboard
+                <div className="w-4xl max-w-full  bg-gray-100 flex  text-gray-700 text-2xl font-medium rounded-lg shadow-inner p-5 hover:bg-gray-200 cursor-pointer">
+                        <BarChart
+                        xAxis={[
+                            {
+                            id: 'barCategories',
+                            data: barData,
+                            scaleType: 'band', 
+                            colorMap: {
+                                type: 'ordinal',
+                                values: barData,
+                                colors: barColors,
+                            },
+                            },
+                        ]}
+                        series={[
+                            {
+                            data: Progress,
+                            },
+                        ]}
+                        height={300}
+                        />
+                        <PieChart
+                            series={[
+                                {
+                                outerRadius: 100,
+                                data,
+                                arcLabel: getArcLabel,
+                                },
+                            ]}
+                            sx={{
+                                [`& .${pieArcLabelClasses.root}`]: {
+                                fill: 'white',
+                                fontSize: 18,
+                                },
+                            }}
+                            {...sizing}
+                            />
+
+                        <select onChange={(e)=>setDep(e.target.value)} className="bg-gray-50  border-gray-300 text-gray-900 text-sm rounded-lg w-23 h-9 focus:ring-primary-500 focus:border-primary-500 block  p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 outline-0  dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
+                                    <option value="68e75cbff12d684451c9def5">Sales</option>
+                                    <option value="68e75cf5f12d684451c9def6">Finance</option>
+                                    <option value="68e75d0ef12d684451c9def7">IT</option>
+                                    <option value="68e75d4cf12d684451c9def9">Testing</option>
+                                    <option value="68e75d66f12d684451c9defa">QA</option>
+                                </select>
                 </div>
                 <p className="text-xl font-medium text-gray-700">
                     Departmentwise task progress
@@ -59,528 +218,7 @@ function AdminScreen() {
                 ))}
             </div>
 
-            {/* Task Sections */}
-            <div className="w-full max-w-7xl space-y-12">
-                {/* Department 1 */}
-                <div className="bg-cyan-200 rounded-xl p-8 shadow-lg space-y-6">
-                    <h3 className="text-3xl font-semibold text-center text-gray-800">
-                        Sales
-                    </h3>
-
-                    {/* 📦 Cards Row */}
-                    <div className="flex gap-8 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-gray-400">
-                        {filteredTasks.map((task) => (
-                            <div
-                                key={task.id}
-                                className="min-w-[320px] bg-gray-200 p-6 rounded-lg shadow-md flex-shrink-0"
-                            >
-                                <div className="space-y-4">
-                                    <div>
-                                        <label className="block text-lg font-semibold">Title :</label>
-                                        <input
-                                            type="text"
-                                            value={task.title}
-                                            disabled
-                                            className="w-full p-2 rounded bg-white border border-gray-300"
-                                        />
-                                    </div>
-
-                                    <div>
-                                        <label className="block text-lg font-semibold">Description :</label>
-                                        <textarea
-                                            disabled
-                                            className="w-full p-2 rounded bg-white border border-gray-300"
-                                        ></textarea>
-                                    </div>
-
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div>
-                                            <label className="block text-lg font-semibold">Start Date :</label>
-                                            <input
-                                                type="date"
-                                                disabled
-                                                className="w-full p-2 rounded bg-white border border-gray-300"
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="block text-lg font-semibold">End Date :</label>
-                                            <input
-                                                type="date"
-                                                disabled
-                                                className="w-full p-2 rounded bg-white border border-gray-300"
-                                            />
-                                        </div>
-                                    </div>
-
-                                    <div>
-                                        <label className="block text-lg font-semibold">Attachments :</label>
-                                        <div className="w-full flex items-center justify-center bg-white border border-gray-300 rounded py-4">
-                                            <img
-                                                src="https://cdn-icons-png.flaticon.com/512/337/337946.png"
-                                                alt="PDF"
-                                                className="w-16 h-16"
-                                            />
-                                        </div>
-                                    </div>
-                                    <div className="p-8 space-y-8 max-w-xl mx-auto">
-                                        <h1 className="text-2xl font-bold mb-4">Task Progress</h1>
-
-                                        {/* Example 1: 75% progress (like the image) */}
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-1">Task Completion (75%)</label>
-                                            <HorizontalProgressBar progress={75} />
-                                        </div>
-
-                                        {/* Example 2: Different progress and style */}
-                                        {/* <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-1">Server Load (90%)</label>
-                                            <HorizontalProgressBar
-                                                progress={90}
-                                                fillColor="bg-red-500"
-                                                trackColor="bg-red-100"
-                                                barHeight="10px"
-                                            />
-                                        </div> */}
-
-                                        {/* Example 3: Low progress */}
-                                        {/* <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-1">Design Draft (15%)</label>
-                                            <HorizontalProgressBar progress={15} fillColor="bg-green-500" />
-                                        </div> */}
-                                    </div>
-
-                                    <div className="pt-2 text-center">
-                                        <span
-                                            className={`px-4 py-1 rounded-full text-sm font-semibold ${task.status === "completed"
-                                                ? "bg-green-500 text-white"
-                                                : "bg-yellow-400 text-white"
-                                                }`}
-                                        >
-                                            {task.status.toUpperCase()}
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-
-                {/* Department 2 */}
-                <div className="bg-cyan-200 rounded-xl p-8 shadow-lg space-y-6">
-                    <h3 className="text-3xl font-semibold text-center text-gray-800">
-                        Marketing
-                    </h3>
-
-                    {/* 📦 Cards Row */}
-                    <div className="flex gap-8 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-gray-400">
-                        {filteredTasks.map((task) => (
-                            <div
-                                key={task.id + "-m"}
-                                className="min-w-[320px] bg-gray-200 p-6 rounded-lg shadow-md flex-shrink-0"
-                            >
-                                <div className="space-y-4">
-                                    <div>
-                                        <label className="block text-lg font-semibold">Title :</label>
-                                        <input
-                                            type="text"
-                                            value={task.title}
-                                            disabled
-                                            className="w-full p-2 rounded bg-white border border-gray-300"
-                                        />
-                                    </div>
-
-                                    <div>
-                                        <label className="block text-lg font-semibold">Description :</label>
-                                        <textarea
-                                            disabled
-                                            className="w-full p-2 rounded bg-white border border-gray-300"
-                                        ></textarea>
-                                    </div>
-
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div>
-                                            <label className="block text-lg font-semibold">Start Date :</label>
-                                            <input
-                                                type="date"
-                                                disabled
-                                                className="w-full p-2 rounded bg-white border border-gray-300"
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="block text-lg font-semibold">End Date :</label>
-                                            <input
-                                                type="date"
-                                                disabled
-                                                className="w-full p-2 rounded bg-white border border-gray-300"
-                                            />
-                                        </div>
-                                    </div>
-
-                                    <div>
-                                        <label className="block text-lg font-semibold">Attachments :</label>
-                                        <div className="w-full flex items-center justify-center bg-white border border-gray-300 rounded py-4">
-                                            <img
-                                                src="https://cdn-icons-png.flaticon.com/512/337/337946.png"
-                                                alt="PDF"
-                                                className="w-16 h-16"
-                                            />
-                                        </div>
-                                    </div>
-
-                                    <div className="p-8 space-y-8 max-w-xl mx-auto">
-                                        <h1 className="text-2xl font-bold mb-4">Project Milestones</h1>
-
-                                        {/* Example 1: 75% progress (like the image) */}
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-1">Task Completion (75%)</label>
-                                            <HorizontalProgressBar progress={75} />
-                                        </div>
-
-                                        {/* Example 2: Different progress and style */}
-                                        {/* <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-1">Server Load (90%)</label>
-                                            <HorizontalProgressBar
-                                                progress={90}
-                                                fillColor="bg-red-500"
-                                                trackColor="bg-red-100"
-                                                barHeight="10px"
-                                            />
-                                        </div> */}
-
-                                        {/* Example 3: Low progress */}
-                                        {/* <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-1">Design Draft (15%)</label>
-                                            <HorizontalProgressBar progress={15} fillColor="bg-green-500" />
-                                        </div> */}
-                                    </div>
-
-                                    <div className="pt-2 text-center">
-                                        <span
-                                            className={`px-4 py-1 rounded-full text-sm font-semibold ${task.status === "completed"
-                                                ? "bg-green-500 text-white"
-                                                : "bg-yellow-400 text-white"
-                                                }`}
-                                        >
-                                            {task.status.toUpperCase()}
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-
-                {/* Department 3 */}
-                <div className="bg-cyan-200 rounded-xl p-8 shadow-lg space-y-6">
-                    <h3 className="text-3xl font-semibold text-center text-gray-800">
-                        IT
-                    </h3>
-
-                    {/* 📦 Cards Row */}
-                    <div className="flex gap-8 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-gray-400">
-                        {filteredTasks.map((task) => (
-                            <div
-                                key={task.id + "-m"}
-                                className="min-w-[320px] bg-gray-200 p-6 rounded-lg shadow-md flex-shrink-0"
-                            >
-                                <div className="space-y-4">
-                                    <div>
-                                        <label className="block text-lg font-semibold">Title :</label>
-                                        <input
-                                            type="text"
-                                            value={task.title}
-                                            disabled
-                                            className="w-full p-2 rounded bg-white border border-gray-300"
-                                        />
-                                    </div>
-
-                                    <div>
-                                        <label className="block text-lg font-semibold">Description :</label>
-                                        <textarea
-                                            disabled
-                                            className="w-full p-2 rounded bg-white border border-gray-300"
-                                        ></textarea>
-                                    </div>
-
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div>
-                                            <label className="block text-lg font-semibold">Start Date :</label>
-                                            <input
-                                                type="date"
-                                                disabled
-                                                className="w-full p-2 rounded bg-white border border-gray-300"
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="block text-lg font-semibold">End Date :</label>
-                                            <input
-                                                type="date"
-                                                disabled
-                                                className="w-full p-2 rounded bg-white border border-gray-300"
-                                            />
-                                        </div>
-                                    </div>
-
-                                    <div>
-                                        <label className="block text-lg font-semibold">Attachments :</label>
-                                        <div className="w-full flex items-center justify-center bg-white border border-gray-300 rounded py-4">
-                                            <img
-                                                src="https://cdn-icons-png.flaticon.com/512/337/337946.png"
-                                                alt="PDF"
-                                                className="w-16 h-16"
-                                            />
-                                        </div>
-                                    </div>
-
-                                    <div className="p-8 space-y-8 max-w-xl mx-auto">
-                                        <h1 className="text-2xl font-bold mb-4">Project Milestones</h1>
-
-                                        {/* Example 1: 75% progress (like the image) */}
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-1">Task Completion (75%)</label>
-                                            <HorizontalProgressBar progress={75} />
-                                        </div>
-
-                                        {/* Example 2: Different progress and style */}
-                                        {/* <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-1">Server Load (90%)</label>
-                                            <HorizontalProgressBar
-                                                progress={90}
-                                                fillColor="bg-red-500"
-                                                trackColor="bg-red-100"
-                                                barHeight="10px"
-                                            />
-                                        </div> */}
-
-                                        {/* Example 3: Low progress */}
-                                        {/* <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-1">Design Draft (15%)</label>
-                                            <HorizontalProgressBar progress={15} fillColor="bg-green-500" />
-                                        </div> */}
-                                    </div>
-                                    <div className="pt-2 text-center">
-                                        <span
-                                            className={`px-4 py-1 rounded-full text-sm font-semibold ${task.status === "completed"
-                                                ? "bg-green-500 text-white"
-                                                : "bg-yellow-400 text-white"
-                                                }`}
-                                        >
-                                            {task.status.toUpperCase()}
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-
-                <div className="bg-cyan-200 rounded-xl p-8 shadow-lg space-y-6">
-                    <h3 className="text-3xl font-semibold text-center text-gray-800">
-                        Finance
-                    </h3>
-
-                    {/* 📦 Cards Row */}
-                    <div className="flex gap-8 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-gray-400">
-                        {filteredTasks.map((task) => (
-                            <div
-                                key={task.id + "-m"}
-                                className="min-w-[320px] bg-gray-200 p-6 rounded-lg shadow-md flex-shrink-0"
-                            >
-                                <div className="space-y-4">
-                                    <div>
-                                        <label className="block text-lg font-semibold">Title :</label>
-                                        <input
-                                            type="text"
-                                            value={task.title}
-                                            disabled
-                                            className="w-full p-2 rounded bg-white border border-gray-300"
-                                        />
-                                    </div>
-
-                                    <div>
-                                        <label className="block text-lg font-semibold">Description :</label>
-                                        <textarea
-                                            disabled
-                                            className="w-full p-2 rounded bg-white border border-gray-300"
-                                        ></textarea>
-                                    </div>
-
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div>
-                                            <label className="block text-lg font-semibold">Start Date :</label>
-                                            <input
-                                                type="date"
-                                                disabled
-                                                className="w-full p-2 rounded bg-white border border-gray-300"
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="block text-lg font-semibold">End Date :</label>
-                                            <input
-                                                type="date"
-                                                disabled
-                                                className="w-full p-2 rounded bg-white border border-gray-300"
-                                            />
-                                        </div>
-                                    </div>
-
-                                    <div className="p-8 space-y-8 max-w-xl mx-auto">
-                                        <h1 className="text-2xl font-bold mb-4">Project Milestones</h1>
-
-                                        {/* Example 1: 75% progress (like the image) */}
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-1">Task Completion (75%)</label>
-                                            <HorizontalProgressBar progress={75} />
-                                        </div>
-
-                                        {/* Example 2: Different progress and style */}
-                                        {/* <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-1">Server Load (90%)</label>
-                                            <HorizontalProgressBar
-                                                progress={90}
-                                                fillColor="bg-red-500"
-                                                trackColor="bg-red-100"
-                                                barHeight="10px"
-                                            />
-                                        </div> */}
-
-                                        {/* Example 3: Low progress */}
-                                        {/* <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-1">Design Draft (15%)</label>
-                                            <HorizontalProgressBar progress={15} fillColor="bg-green-500" />
-                                        </div> */}
-                                    </div>
-                                    <div>
-                                        <label className="block text-lg font-semibold">Attachments :</label>
-                                        <div className="w-full flex items-center justify-center bg-white border border-gray-300 rounded py-4">
-                                            <img
-                                                src="https://cdn-icons-png.flaticon.com/512/337/337946.png"
-                                                alt="PDF"
-                                                className="w-16 h-16"
-                                            />
-                                        </div>
-                                    </div>
-
-                                    <div className="pt-2 text-center">
-                                        <span
-                                            className={`px-4 py-1 rounded-full text-sm font-semibold ${task.status === "completed"
-                                                ? "bg-green-500 text-white"
-                                                : "bg-yellow-400 text-white"
-                                                }`}
-                                        >
-                                            {task.status.toUpperCase()}
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-
-                <div className="bg-cyan-200 rounded-xl p-8 shadow-lg space-y-6">
-                    <h3 className="text-3xl font-semibold text-center text-gray-800">
-                        HR
-                    </h3>
-
-                    {/* 📦 Cards Row */}
-                    <div className="flex gap-8 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-gray-400">
-                        {filteredTasks.map((task) => (
-                            <div
-                                key={task.id + "-m"}
-                                className="min-w-[320px] bg-gray-200 p-6 rounded-lg shadow-md flex-shrink-0"
-                            >
-                                <div className="space-y-4">
-                                    <div>
-                                        <label className="block text-lg font-semibold">Title :</label>
-                                        <input
-                                            type="text"
-                                            value={task.title}
-                                            disabled
-                                            className="w-full p-2 rounded bg-white border border-gray-300"
-                                        />
-                                    </div>
-
-                                    <div>
-                                        <label className="block text-lg font-semibold">Description :</label>
-                                        <textarea
-                                            disabled
-                                            className="w-full p-2 rounded bg-white border border-gray-300"
-                                        ></textarea>
-                                    </div>
-
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div>
-                                            <label className="block text-lg font-semibold">Start Date :</label>
-                                            <input
-                                                type="date"
-                                                disabled
-                                                className="w-full p-2 rounded bg-white border border-gray-300"
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="block text-lg font-semibold">End Date :</label>
-                                            <input
-                                                type="date"
-                                                disabled
-                                                className="w-full p-2 rounded bg-white border border-gray-300"
-                                            />
-                                        </div>
-                                    </div>
-
-                                    <div>
-                                        <label className="block text-lg font-semibold">Attachments :</label>
-                                        <div className="w-full flex items-center justify-center bg-white border border-gray-300 rounded py-4">
-                                            <img
-                                                src="https://cdn-icons-png.flaticon.com/512/337/337946.png"
-                                                alt="PDF"
-                                                className="w-16 h-16"
-                                            />
-                                        </div>
-                                    </div>
-
-                                    <div className="p-8 space-y-8 max-w-xl mx-auto">
-                                        <h1 className="text-2xl font-bold mb-4">Project Milestones</h1>
-
-                                        {/* Example 1: 75% progress (like the image) */}
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-1">Task Completion (75%)</label>
-                                            <HorizontalProgressBar progress={75} />
-                                        </div>
-
-                                        {/* Example 2: Different progress and style */}
-                                        {/* <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-1">Server Load (90%)</label>
-                                            <HorizontalProgressBar
-                                                progress={90}
-                                                fillColor="bg-red-500"
-                                                trackColor="bg-red-100"
-                                                barHeight="10px"
-                                            />
-                                        </div> */}
-
-                                        {/* Example 3: Low progress */}
-                                        {/* <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-1">Design Draft (15%)</label>
-                                            <HorizontalProgressBar progress={15} fillColor="bg-green-500" />
-                                        </div> */}
-                                    </div>
-                                    <div className="pt-2 text-center">
-                                        <span
-                                            className={`px-4 py-1 rounded-full text-sm font-semibold ${task.status === "completed"
-                                                ? "bg-green-500 text-white"
-                                                : "bg-yellow-400 text-white"
-                                                }`}
-                                        >
-                                            {task.status.toUpperCase()}
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-
-            </div>
+            <DepartmentWiseComponent filteredTask={filteredTasks} handleEdit={handleEdit} handleDelete={handleDelete} />
 
             {/* Bottom Buttons */}
             <div className="flex flex-col md:flex-row gap-8 justify-center mt-12">
@@ -591,7 +229,23 @@ function AdminScreen() {
                     Manage Users
                 </button>
             </div>
-            {open ? <CreateTaskAdmin onClose={()=> setOpen(false)} /> : ""}
+            <ToastContainer
+position="top-right"
+autoClose={2500}
+hideProgressBar={false}
+newestOnTop={false}
+closeOnClick={false}
+rtl={false}
+pauseOnFocusLoss
+draggable
+pauseOnHover
+theme="colored"
+transition={Bounce}
+/>
+            {open ? <CreateTaskAdmin Toast={notify} fetch={fetchTask} onClose={()=> setOpen(false)} /> : ""}
+                {openEdit && currentTask && (
+          <EditTaskAdmin task={currentTask} onClose={handleCloseEdit} notify={notify} fetch={fetchTask} />
+        )}
         </div>
          </>
     );

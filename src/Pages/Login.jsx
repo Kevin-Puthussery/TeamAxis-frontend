@@ -1,6 +1,8 @@
 import axios from "axios"
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
+import { Bounce, ToastContainer, toast } from 'react-toastify';
+
 
 function Login() {
     const [username,setUname]=useState("")
@@ -18,13 +20,24 @@ function Login() {
             localStorage.setItem("role","admin")
             navigate("/admin/home")
             }
-            else if(resp.data.user){
+            else if(resp.data.status=="Active"){
             localStorage.setItem("token",resp.data.token)
             localStorage.setItem("uid",resp.data.userId)
             localStorage.setItem("role","user")
-
             navigate("/user/home")
-
+            }
+            else{
+                     toast.error('Restricted!', {
+                    position: "top-center",
+                    autoClose: 2500,
+                    hideProgressBar: false,
+                    closeOnClick: false,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "colored",
+                    transition: Bounce,
+                    });
             }
     }
 catch(e){
@@ -71,13 +84,13 @@ catch(e){
                                         class="w-full p-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-purple-400 transition duration-200" />
                                 </div>
 
-                                <div class="flex items-center justify-between">
+                                {/* <div class="flex items-center justify-between">
                                     <label class="flex items-center space-x-2 text-sm text-gray-500">
                                         <input type="checkbox" class="w-4 h-4 rounded border-gray-300 focus:ring-purple-400" />
                                         <span>Remember me</span>
                                     </label>
                                     <a href="#" class="text-sm text-purple-500 hover:underline">Forgot password?</a>
-                                </div>
+                                </div> */}
 
                                 <button type="button" onClick={()=>verifyUser()}
                                     class="w-full bg-purple-500 hover:bg-purple-600 text-white py-3 rounded-xl font-semibold shadow-md transition duration-200">Sign In</button>
@@ -90,6 +103,19 @@ catch(e){
                         </div>
                     </div>
                 </div>
+                 <ToastContainer
+                position="top-right"
+                autoClose={2500}
+                hideProgressBar={false}
+                newestOnTop={false}
+                closeOnClick={false}
+                rtl={false}
+                pauseOnFocusLoss
+                draggable
+                pauseOnHover
+                theme="colored"
+                transition={Bounce}
+                />
             </section>
 
 

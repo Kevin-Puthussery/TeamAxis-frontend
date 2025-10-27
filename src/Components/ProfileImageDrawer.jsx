@@ -2,6 +2,8 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { FaEdit } from "react-icons/fa";
 import { GrUpdate } from "react-icons/gr";
+const SERVER_API=process.env.VITE_API_URL
+
 
 function ProfileImageDrawer({ onClose }) {
     
@@ -44,7 +46,7 @@ function ProfileImageDrawer({ onClose }) {
     const token=localStorage.getItem("token")
 
     const userDetails=async()=>{
-        const UserList=await axios.get('http://localhost:3000/api/user/view',{
+        const UserList=await axios.get(`${SERVER_API}/api/user/view`,{
             headers:{
                 Authorization:token
             }
@@ -61,7 +63,7 @@ function ProfileImageDrawer({ onClose }) {
         try{
             const formData=new FormData()
             formData.append("profilePic",selectedFile)
-            const response=await axios.post(`http://localhost:3000/api/user/profile/${currentUser[0]?._id}`,formData,{
+            const response=await axios.post(`${SERVER_API}/api/user/profile/${currentUser[0]?._id}`,formData,{
                 headers:{
                     Authorization:localStorage.getItem("token"),
                     "Content-Type":"multipart/form-data"

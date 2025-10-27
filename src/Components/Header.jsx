@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import ProfileImageDrawer from './ProfileImageDrawer'
 import axios from 'axios'
 // import { FaRegUser } from "react-icons/fa";
+const SERVER_API=process.env.VITE_API_URL
 
 
 
@@ -26,7 +27,7 @@ function Header() {
     const token=localStorage.getItem("token")
 
     const userDetails=async()=>{
-        const UserList=await axios.get('http://localhost:3000/api/user/view',{
+        const UserList=await axios.get(`${SERVER_API}/api/user/view`,{
             headers:{
                 Authorization:token
             }

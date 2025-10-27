@@ -1,13 +1,36 @@
 import axios from 'axios';
-import React from 'react';
+import React, { useState } from 'react';
 import { GrUpdate } from 'react-icons/gr';
 import { MdDone } from 'react-icons/md';
+import { IoMdSync } from 'react-icons/io';
+const SERVER_API=process.env.VITE_API_URL
+
 
 function EditTaskAdmin({ onClose, task, notify,fetch }) {
-
+  const [comment,setComment]=useState()
   const EditFunction=async(id)=>{
-    const editedData=await axios.put(`http://localhost:3000/api/task/update/${id}`,{
-      completed:true
+    const editedData=await axios.put(`${SERVER_API}/api/task/update/${id}`,{
+      completed:true,
+      AdminComments:comment,
+      UserComplete:false
+    },{
+      headers:{
+        Authorization:localStorage.getItem("token")
+      }
+    })
+    if (editedData.data.msg){
+        notify(true)
+    }
+    else{
+        notify(false)
+    }
+    fetch()
+    onClose()
+  }
+  const ReassignFunction=async(id)=>{
+    const editedData=await axios.put(`${SERVER_API}/api/task/update/${id}`,{
+      UserComplete:false,
+      AdminComments:comment
     },{
       headers:{
         Authorization:localStorage.getItem("token")
@@ -95,15 +118,35 @@ function EditTaskAdmin({ onClose, task, notify,fetch }) {
                     {task?.completed?"COMPLETED":"PENDING"}
                   </span>
                 </div>
+                {task.UserComplete &&<div className="col-span-2 sm:col-span-2">
+                                <label className="block text-sm font-semibold text-gray-900 dark:text-white">
+                                    Add Comments :
+                                </label>
+                                <textarea
+                                    rows={2}
+                                    placeholder="Enter description"
+                                    onChange={(e)=>setComment(e.target.value)} value={comment}
+                                    className="w-full border border-gray-300 rounded-md px-3 py-2 mt-1 text-sm text-gray-800 dark:bg-gray-600 dark:text-white focus:outline-none focus:ring focus:ring-blue-300"
+                                ></textarea>
+                            </div>}
               </div>
-
-              <button
+                <div className='flex justify-between'>
+                  <button
                 type="button"
                 onClick={()=>EditFunction(task._id)}
                 className="text-white inline-flex items-center bg-green-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
               >
                 Complete Task <span className="p-1"><MdDone /></span>
               </button>
+              {task.UserComplete &&<button
+                type="button"
+                onClick={()=>ReassignFunction(task._id)}
+                className="text-white inline-flex items-center bg-yellow-700 hover:bg-yellow-800 focus:ring-4 focus:outline-none focus:ring-yellow-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-yellow-600 dark:hover:bg-yellow-700 dark:focus:ring-yellow-800"
+              >
+                Re-Assign <span className="p-1"><IoMdSync /></span>
+              </button>}
+                </div>
+              
             </form>
           </div>
         </div>

@@ -8,20 +8,22 @@ import axios from 'axios'
 import PendingTask from './PendingTask';
 import CompletedTask from './CompletedTask';
 import { jsPDF } from 'jspdf';
+const SERVER_API=process.env.VITE_API_URL
+
 
 
 function UserScreen() {
     // 2. State to manage modal visibility
     const [isModalOpenc, setIsModalcOpen] = useState(false);
     const [isModalOpene, setIsModaleOpen] = useState(false);
-    const [id,setId]=useState()
+    const [id,setId]=useState({})
     // 3. Handlers to open and close the modal
     const openModalc = () => setIsModalcOpen(true);
     const closeModalc = () => setIsModalcOpen(false);
 
-    const openModale = (id) =>{ 
+    const openModale = (task) =>{ 
         setIsModaleOpen(true);
-        setId(id)
+        setId(task)
     }
     const closeModale = () => setIsModaleOpen(false);
 
@@ -45,7 +47,7 @@ function UserScreen() {
     const fetchdep=async()=>{
         const token=localStorage.getItem("token")
     const uid=localStorage.getItem("uid")
-        const dep=await axios.get("http://localhost:3000/api/user/view",{
+        const dep=await axios.get(`${SERVER_API}/api/user/view`,{
             headers:{
                 Authorization:token
             }
@@ -60,7 +62,7 @@ function UserScreen() {
     const fetchTask=async()=>{
         const depId = dep[0]?.depId
         if(!depId) return
-        const Tasklist=await axios.get(`http://localhost:3000/api/task/view?filter=${depId}`,{
+        const Tasklist=await axios.get(`${SERVER_API}/api/task/view?filter=${depId}`,{
             headers:{
                 Authorization:localStorage.getItem("token")
             }
@@ -75,6 +77,21 @@ function UserScreen() {
     fetchTask();
   }
 }, [dep]);
+
+const [att, setAtt] = useState([]);
+
+  useEffect(() => {
+    getAttachment();
+  }, []);
+
+  const getAttachment = async () => {
+    const Attachment = await axios.get(`${SERVER_API}/api/task/file/view`, {
+      headers: {
+        Authorization: localStorage.getItem("token"),
+      },
+    });
+    setAtt(Attachment.data.AttachmentView);
+  };
 
     return (
         <>
@@ -104,14 +121,14 @@ function UserScreen() {
 
                 {/* 🕐 Pending Tasks */}
                 <section className="mb-12">
-                    <PendingTask task={task} openModale={openModale} fetchTask={fetchTask}/>
+                    <PendingTask att={att} task={task} openModale={openModale} fetchTask={fetchTask}/>
                 </section>
 
                 {/* --- */}
 
                 {/* ✅ Completed Tasks - VIEW ONLY */}
                 <section>
-                   <CompletedTask task={task} downloadTaskPDF={downloadTaskPDF}/>
+                   <CompletedTask att={att} task={task} downloadTaskPDF={downloadTaskPDF}/>
                 </section>
             </div>
 
@@ -121,12 +138,12 @@ function UserScreen() {
                 fetchTask={fetchTask}
                 dep={dep[0]?.department}
                     onClose={closeModalc}
-                
+                fetchdep={fetchdep}
                 />
             )}
             {isModalOpene && (
-                <EditTaskUser id={id}
-                    onClose={closeModale}
+                <EditTaskUser id={id._id} task={id} getAttachment={getAttachment}
+                    onClose={closeModale} fetchTask={fetchTask}
                 
                 />
             )}

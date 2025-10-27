@@ -1,6 +1,8 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react'
 import { GrUpdate } from 'react-icons/gr';
+const SERVER_API=process.env.VITE_API_URL
+
 
 function UserEditComponent({onClose,id,fetch,toast}) {
 
@@ -15,7 +17,7 @@ function UserEditComponent({onClose,id,fetch,toast}) {
     if(Status) UpdatedData.status=Status
 
     const UpdateUser=async()=>{
-           const Edit= await axios.put(`http://localhost:3000/api/user/update/${id}`,
+           const Edit= await axios.put(`${SERVER_API}/api/user/update/${id}`,
             UpdatedData,
         {
             headers:{

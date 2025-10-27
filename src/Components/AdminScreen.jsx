@@ -8,6 +8,7 @@ import axios from "axios";
 import { BarChart } from '@mui/x-charts/BarChart';
 import EditTaskAdmin from "./EditTaskAdmin";
 import { PieChart, pieArcLabelClasses } from '@mui/x-charts/PieChart';
+const SERVER_API=process.env.VITE_API_URL
 
 
 
@@ -59,7 +60,7 @@ transition: Bounce,
     const [open, setOpen] = useState(false)
 
     const fetchTask=async()=>{
-        const AllTask=await axios.get('http://localhost:3000/api/task/view',{
+        const AllTask=await axios.get(`${SERVER_API}/api/task/view`,{
             headers:{
                 Authorization:localStorage.getItem("token")
             }
@@ -83,7 +84,7 @@ transition: Bounce,
     const Progress=ChartData.map((task)=>task.progess)
     const barData = Progress.map((item,i)=>`Task ${i+1}`)
     const doDelete=async(id)=>{
-        await axios.delete(`http://localhost:3000/api/task/delete/${id}`,{
+        await axios.delete(`${SERVER_API}/api/task/delete/${id}`,{
             headers:{
                 Authorization:localStorage.getItem("token")
             }
@@ -120,8 +121,8 @@ const filteredForPie=tasks.filter((item)=> item.depId===dep)
 const pending=filteredForPie.filter((item)=> !item.completed).length
 const completed=filteredForPie.filter((item)=> item.completed).length
  const total=pending+completed
- const pendingConverted=(pending/total)*1000
- const completedConverted=(completed/total)*1000
+ const pendingConverted=(pending/total)*100
+ const completedConverted=(completed/total)*100
 
 
   const data = [

@@ -2,14 +2,16 @@ import React, { useEffect, useState } from 'react'
 import HorizontalProgressBar from './HorizontalProgressBar'
 import axios from 'axios'
 import { FaFilePdf } from 'react-icons/fa'
+const SERVER_API=process.env.VITE_API_URL
 
-function PendingTask({task,openModale,fetchTask}) {
+
+function PendingTask({task,openModale,fetchTask,att}) {
 
     const MarkasComplete=async(id)=>{
     const result=confirm("Are you sure you want to Complete?")    
     if (result){
-        await axios.put(`http://localhost:3000/api/task/update/${id}`,{
-    completed:true
+        await axios.put(`${SERVER_API}/api/task/update/${id}`,{
+    UserComplete:true
   },{
     headers:{
       Authorization:localStorage.getItem("token")
@@ -22,7 +24,7 @@ function PendingTask({task,openModale,fetchTask}) {
 const handleDownload = async (taskId) => {
   try {
     const response = await axios.get(
-      `http://localhost:3000/api/task/download/${taskId}`,
+      `${SERVER_API}/api/task/download/${taskId}`,
       {
         responseType: "blob",
         headers: {
@@ -53,19 +55,38 @@ const handleDownload = async (taskId) => {
     alert("No Attachment found.");
   }
 };
+  
 
   return (
     <>
     <h2 className="text-2xl font-bold text-gray-800 mb-6">Pending Tasks</h2>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {task.map((task,key) => 
-                           !task.completed && 
+                        {task.map((task,key) => {
+                        const hasAttachment = att.some((attc) => attc.taskId === task._id);
+                        return(
+                           !task.completed && (
                             <div
                                 key={key}
                                 className="bg-white p-5 rounded-xl shadow-md border border-gray-200 flex flex-col justify-between"
                             >
+                              <div className='flex gap-3'>
                                 {/* Task Card Content (Pending) */}
+                                {task.createdBy && <div className="flex justify-start py-2">
+                                    <span
+                                        className={`px-4 py-1 rounded-full text-sm font-semibold ${task.createdBy=="Admin"?"bg-violet-500":"bg-green-500"}  text-white`}
+                                      >
+                                        {task.createdBy}
+                                      </span>
+                                  </div>}
+                                  {task.UserComplete && <div className="flex justify-between py-2">
+                                    <span
+                                        className={`px-4 py-1 rounded-full text-sm font-semibold bg-red-500 text-white`}
+                                      >
+                                        {task.UserComplete&&!task.completed && "Pending"}
+                                      </span>
+                                  </div>}
+                                  </div>
                                 <div className="mb-3">
                                     <label className="block text-sm font-semibold text-gray-700">Title :</label>
                                     <input
@@ -105,28 +126,42 @@ const handleDownload = async (taskId) => {
                                 <div className="mb-4">
                                     <label className="block text-sm font-semibold text-gray-700">Attachments :</label>
                                     <div className="mt-2 w-full border-2 border-dashed border-gray-300 rounded-md p-4 text-center text-sm text-gray-400  hover:border-blue-400 hover:text-blue-500 transition">
-                                        <div className='flex gap-10 justify-center'><img
-                                            src="https://cdn-icons-png.flaticon.com/512/337/337946.png"
-                                            alt="PDF"
-                                            className="w-10 h-10"
-                                        />
-                                            <button onClick={()=>handleDownload(task._id)} className="px-4 py-1 bg-blue-100 text-blue-600 text-sm rounded cursor-pointer">Download</button>
-
-                                        </div>
+                                        {hasAttachment ? (
+                      <div className="flex gap-10 justify-center">
+                        <button
+                          onClick={() => handleDownload(task._id)}
+                          className="px-4 py-1 bg-blue-100 text-blue-600 text-sm rounded cursor-pointer"
+                        >
+                          Download
+                        </button>
+                      </div>
+                    ) : (
+                      <p className="text-gray-400 italic">No attachment found</p>
+                    )}
                                         
                                     </div>
                                 </div>
+                                {task.AdminComments&&<div>
+                  <label className="block text-lg font-semibold">Admin Comments :</label>
+                  <textarea
+                    disabled
+                    value={task.AdminComments}
+                    className="w-full p-2 rounded bg-white border border-gray-300"
+                  ></textarea>
+                </div>}
                                 {/* Actions */}
                                 <div className="flex justify-between items-center mt-4">
-                                    <button onClick={()=>openModale(task._id)} className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm">
+                                    <button onClick={()=>openModale(task)} className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm">
                                         Edit
                                     </button>
-                                    <button onClick={()=>MarkasComplete(task._id)} className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 text-sm">
+                                    {!task.UserComplete&&<button onClick={()=>MarkasComplete(task._id)} className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 text-sm">
                                         Complete Task
-                                    </button>
+                                    </button>}
                                 </div>
                             </div>
-                        )}
+                        )
+        )
+})}
                     </div>
     </>
   )

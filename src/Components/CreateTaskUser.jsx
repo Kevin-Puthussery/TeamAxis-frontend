@@ -1,25 +1,34 @@
 import axios from 'axios';
 import React, { useState } from 'react'
+const SERVER_API=process.env.VITE_API_URL
 
-function CreateTaskUser({onClose,fetchTask,dep}) {
+
+function CreateTaskUser({onClose,fetchTask,dep,fetchdep}) {
     const [name,setName]=useState()
     const [desc,setDesc]=useState()
     const [sDate,setsDate]=useState()
     const [eDate,seteDate]=useState()
 
+    const uid=localStorage.getItem("uid")
 
     const addTask=async()=>{
-        await axios.post('http://localhost:3000/api/task/create',{
+        await axios.post(`${SERVER_API}/api/task/create`,{
             name:name,
     description:desc,
     startDate:sDate,
     endDate:eDate,
-    department:dep
+    department:dep,
+    userId:uid
         },{
             headers:{
                 Authorization:localStorage.getItem("token")
             }
         })
+        await fetchdep()
+        await fetchTask()
+
+        onClose()
+
     }
     
     const handleClose = () => {
@@ -104,16 +113,7 @@ function CreateTaskUser({onClose,fetchTask,dep}) {
                             </div>
                            
                         </div>
-                        <button type="button" onClick={()=>{
-                            const task=addTask()
-                            if (task){
-                            fetchTask()
-                            onClose()
-                            }
-                            
-
-
-                        }} className="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                        <button type="button" onClick={addTask} className="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
                             Create Task <span className='p-1'>+</span>
                         </button>
                     </form>

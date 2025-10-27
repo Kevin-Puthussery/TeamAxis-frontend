@@ -2,12 +2,14 @@ import React, { use, useEffect, useState } from 'react'
 import { FaFilePdf } from 'react-icons/fa'
 import HorizontalProgressBar from './HorizontalProgressBar'
 import axios from 'axios'
+const SERVER_API=process.env.VITE_API_URL
 
-function CompletedTask({task,downloadTaskPDF}) {
+
+function CompletedTask({task,downloadTaskPDF,att}) {
     const handleDownload = async (taskId) => {
   try {
     const response = await axios.get(
-      `http://localhost:3000/api/task/download/${taskId}`,
+      `${SERVER_API}/api/task/download/${taskId}`,
       {
         responseType: "blob",
         headers: {
@@ -38,18 +40,29 @@ function CompletedTask({task,downloadTaskPDF}) {
     alert("No Attachment found.");
   }
 };
+  
+  
   return (
     <>
      <h2 className="text-2xl font-bold text-gray-800 mb-6">Completed Tasks</h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {task.map((task,key) => ( 
-                            task.completed && 
+                        {task.map((task,key) => {
+                            const hasAttachment = att.some((attc) => attc.taskId === task._id);
+                        return( 
+                            task.completed && (
                             
                             <div
                                 key={key}
                                 className="bg-white p-5 rounded-xl shadow-md border border-gray-200"
                             >
                                 {/* Task Card Content (Completed) */}
+                                {task.createdBy && <div className="flex justify-start py-2">
+                                    <span
+                                        className={`px-4 py-1 rounded-full text-sm font-semibold ${task.createdBy=="Admin"?"bg-violet-500":"bg-green-500"}  text-white`}
+                                      >
+                                        {task.createdBy}
+                                      </span>
+                                  </div>}
                                 <div className="mb-3">
                                     <label className="block text-sm font-semibold text-gray-700">Title :</label>
                                     <p className="mt-1 text-sm text-gray-800 bg-gray-100 px-3 py-2 rounded-md">
@@ -79,14 +92,18 @@ function CompletedTask({task,downloadTaskPDF}) {
                                 <div className="mb-4">
                                     <label className="block text-sm font-semibold text-gray-700">Attachments :</label>
                                     <div className="mt-2 w-full border-2 border-dashed border-gray-300 rounded-md p-4 text-center text-sm text-gray-400  hover:border-blue-400 hover:text-blue-500 transition">
-                                        <div className='flex gap-10 justify-center'><img
-                                            src="https://cdn-icons-png.flaticon.com/512/337/337946.png"
-                                            alt="PDF"
-                                            className="w-10 h-10"
-                                        />
-                                            <button onClick={()=>handleDownload(task._id)} className="px-4 py-1 bg-blue-100 text-blue-600 text-sm rounded cursor-pointer">Download</button>
-
-                                        </div>
+                                        {hasAttachment ? (
+                      <div className="flex gap-10 justify-center">
+                        <button
+                          onClick={() => handleDownload(task._id)}
+                          className="px-4 py-1 bg-blue-100 text-blue-600 text-sm rounded cursor-pointer"
+                        >
+                          Download
+                        </button>
+                      </div>
+                    ) : (
+                      <p className="text-gray-400 italic">No attachment found</p>
+                    )}
                                         
                                     </div>
                                 </div>
@@ -99,7 +116,7 @@ function CompletedTask({task,downloadTaskPDF}) {
                                     Download Task Report
                                 </button>
                             </div>
-                        ))}
+                        ))})}
                     </div>
     </>
   )

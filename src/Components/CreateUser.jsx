@@ -1,5 +1,7 @@
 import axios from 'axios';
 import React, { useState } from 'react'
+const SERVER_API=process.env.VITE_API_URL
+
 
 function CreateUser({ onClose,fetch,toast }) {
 
@@ -10,7 +12,7 @@ function CreateUser({ onClose,fetch,toast }) {
 
     const CreateUser=async()=>{
         try{
-        const UserCreated=await axios.post('http://localhost:3000/api/user/register',{
+        const UserCreated=await axios.post(`${SERVER_API}/api/user/register`,{
             username,
             password,
             department,

@@ -1,9 +1,10 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import HorizontalProgressBar from './HorizontalProgressBar';
 import { FaCloudUploadAlt, FaFileExcel, FaFilePdf, FaFileWord, FaTimes } from 'react-icons/fa';
 import axios from 'axios';
+const SERVER_API=process.env.VITE_API_URL
 
-function EditTaskUser({onClose,id}) {
+function EditTaskUser({onClose,id,task,getAttachment,fetchTask}) {
     // Note: handleClose is defined but the modal closing logic is incomplete (it just logs to console).
     // In a real app, this should involve setting state to hide the modal.
     const handleClose = () => {
@@ -11,34 +12,46 @@ function EditTaskUser({onClose,id}) {
     }
 
     const [attachedFiles, setAttachedFiles] = useState([]);
-    const [name,setName]=useState()
-    const [desc,setDesc]=useState()
-    const [startDate,setSdate]=useState()
-    const [endDate,setEdate]=useState()
-    const [progress,setProgress]=useState(0)
+
     const [loading,setLoading]=useState(false)
     
+    const [form,setForm]=useState({
+      name:"",
+      description:"",
+      startDate:"",
+      endDate:"",
+      progress:0
+    })
     
+    useEffect(()=>{
+      if(task){
+        setForm({
+            name:task.name||"",
+            description:task.description||"",
+            startDate:task.startDate||"",
+            endDate:task.endDate||"",
+            progress:task.progess||0
+        })
+      }
+    },[task])
 
-const EditUser=async()=>{
-  await axios.put(`http://localhost:3000/api/task/update/${id}`,{
-    name:name,
-    description:desc,
-    progress:progress,
-    startDate:startDate,
-    endDate:endDate
-  },{
+    function handleChange(e){
+      const {name,value}=e.target
+      setForm((prev)=>({...prev, [name]:value}))
+    }
+
+const EditTask=async()=>{
+  await axios.put(`${SERVER_API}/api/task/update/${id}`,form,{
     headers:{
       Authorization:localStorage.getItem("token")
     }
   }) 
-  
 }
 
 const UploadFile=async()=>{
   const formData=new FormData()
     formData.append("file",attachedFiles[0])
-  await axios.post(`http://localhost:3000/api/task/upload/${id}`,
+  await axios.post(`${SERVER_API}/api/task/upload/${id}`,
     formData
   ,{
     headers:{
@@ -46,22 +59,19 @@ const UploadFile=async()=>{
       Authorization:localStorage.getItem("token")
     }
   })
+
+   
 }
 
   const handleFileChange = (e) => {
     const files = Array.from(e.target.files);
     const allowedTypes = [
-      "application/pdf",
-      "application/msword",
-      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-      "application/vnd.ms-excel",
-      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-    ];
+      "application/pdf"]
 
     const validFiles = files.filter((file) => allowedTypes.includes(file.type));
 
     if (files.length !== validFiles.length) {
-      alert("Only PDF, Word, and Excel files are allowed.");
+      alert("Only PDF are allowed.");
     }
 
     const newFiles = [...attachedFiles, ...validFiles].slice(0, 1);
@@ -81,22 +91,20 @@ const UploadFile=async()=>{
   const handleSubmit = async(e) => {
     e.preventDefault();
     setLoading(true)
-    await EditUser()
+    await EditTask()
     if(attachedFiles.length>0){
-    UploadFile()
+    await UploadFile()
   }
+  fetchTask()
+    getAttachment()
+   setLoading(false)
     onClose()
-    setLoading(false)
-    // TODO: Add upload logic with FormData + Axios if needed
   };
 
   const getFileIcon = (file) => {
     if (file.type.includes("pdf"))
       return <FaFilePdf className="text-red-600 text-3xl" />;
-    if (file.type.includes("word"))
-      return <FaFileWord className="text-blue-600 text-3xl" />;
-    if (file.type.includes("excel"))
-      return <FaFileExcel className="text-green-600 text-3xl" />;
+    
     return <FaCloudUploadAlt className="text-gray-500 text-3xl" />;
   };
 
@@ -144,7 +152,8 @@ const UploadFile=async()=>{
                                     type="text"
                                     name="name"
                                     id="name"
-                                    onChange={(e)=>setName(e.target.value)}
+                                    value={form.name}
+                                    onChange={handleChange}
                                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
                                     placeholder="Name"
                                     required=""
@@ -157,7 +166,9 @@ const UploadFile=async()=>{
                                     Description :
                                 </label>
                                 <textarea
-                                    onChange={(e)=>setDesc(e.target.value)}
+                                    name='description'
+                                    value={form.description}
+                                    onChange={handleChange}
                                     rows={3} // Increased rows for a better appearance
                                     placeholder="Enter description"
                                     className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white resize-none"
@@ -171,7 +182,9 @@ const UploadFile=async()=>{
                                 </label>
                                 <input
                                     type="date"
-                                    onChange={(e)=>setSdate(e.target.value)}
+                                    name='startDate'
+                                    value={form.startDate}
+                                    onChange={handleChange}
                                     // Removed 'mt-1' from input class, as it's better handled by the label's margin-bottom
                                     className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
                                 />
@@ -184,16 +197,20 @@ const UploadFile=async()=>{
                                 </label>
                                 <input
                                     type="date"
-                                    onChange={(e)=>setEdate(e.target.value)}
+                                    name='endDate'
+                                    value={form.endDate}
+                                    onChange={handleChange}
                                     className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
                                 />
                             </div>
 
                             {/* Task Completion (Spans 2 columns) */}
                             <div className="col-span-2">
-                                <label className="block text-sm font-medium text-gray-900 dark:text-white mb-2">Task Completion ({progress}%)</label>
+                                <label className="block text-sm font-medium text-gray-900 dark:text-white mb-2">Task Completion ({form.progress}%)</label>
                                 {/* <HorizontalProgressBar progress={10} fillColor="bg-green-500" /> */}
-                                <input className='w-full' value={progress} onChange={(e)=>setProgress(e.target.value)} type="range" />
+                                <input className='w-full' name='progress'
+                                    value={form.progress}
+                                    onChange={handleChange} type="range" />
                             </div>
                 <div className="col-span-2">
                 <label className="block text-sm font-semibold text-gray-900 dark:text-white mb-2">
@@ -206,7 +223,7 @@ const UploadFile=async()=>{
                 <label
                   htmlFor="file-upload"
                   className={`flex flex-col items-center justify-center w-full border-2 border-dashed 
-                  ${attachedFiles.length >= 3 ? "border-gray-400 opacity-60 cursor-not-allowed" : "border-gray-300 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600"} 
+                  ${attachedFiles.length > 1 ? "border-gray-400 opacity-60 cursor-not-allowed" : "border-gray-300 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600"} 
                   rounded-xl bg-gray-50 dark:bg-gray-700 dark:border-gray-600 
                   transition-all duration-200 p-6`}
                 >
@@ -217,13 +234,13 @@ const UploadFile=async()=>{
                       : "Click or drag to upload files"}
                   </p>
                   <p className="text-xs text-gray-400 dark:text-gray-400">
-                    Supports PDF, DOC, DOCX, XLS, XLSX
+                    Support PDF
                   </p>
                   <input
                     id="file-upload"
                     type="file"
                     multiple
-                    accept=".pdf,.doc,.docx,.xls,.xlsx"
+                    accept=".pdf"
                     onChange={handleFileChange}
                     disabled={attachedFiles.length > 1}
                     className="hidden"
@@ -264,9 +281,9 @@ const UploadFile=async()=>{
                         </div>
 
                         {/* Submit Button */}
-                        <button type="submit" disabled={loading} className="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                        {<button type="submit" disabled={loading} className="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
                             {loading?"Uploading":"Update" } <span className='p-1'>+</span>
-                        </button>
+                        </button>}
                     </form>
                 </div>
             </div>

@@ -6,6 +6,8 @@ import Header from './Header'
 import TableData from './TableData'
 import axios from 'axios'
 import { Bounce, ToastContainer, toast } from 'react-toastify';
+const SERVER_API=process.env.VITE_API_URL
+
 
 function UserTable() {
 
@@ -66,7 +68,7 @@ transition: Bounce,
     const [user,setUser]=useState([])
     const [filter,setFilter]=useState("")
     const FetchUser=async()=>{
-                const AllUser=await axios.get("http://localhost:3000/api/user/view?filter="+filter.toLowerCase(),{
+                const AllUser=await axios.get(`${SERVER_API}/api/user/view?filter=`+filter.toLowerCase(),{
                     headers:{
                         Authorization:localStorage.getItem("token")
                     }

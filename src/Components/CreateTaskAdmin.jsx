@@ -1,6 +1,8 @@
 import React from 'react'
 import { useState } from 'react';
 import axios from 'axios';
+const SERVER_API=process.env.VITE_API_URL
+
 
 
 function CreateTaskAdmin({onClose,Toast,fetch}) {
@@ -14,17 +16,17 @@ function CreateTaskAdmin({onClose,Toast,fetch}) {
     const[dep,setDep]=useState("Sales")
     const[sdate,setSdate]=useState()
     const[edate,setEdate]=useState()
-
+    
     const Tasks={
         name:title,
         description:Desc,
         department:dep,
         startDate:sdate,
-        endDate:edate
+        endDate:edate,
     }
 
     const CreateTask=async()=>{
-        const response=await axios.post("http://localhost:3000/api/task/create",Tasks,{
+        const response=await axios.post(`${SERVER_API}/api/task/create`,Tasks,{
             headers:{
                 Authorization:localStorage.getItem("token")
             }

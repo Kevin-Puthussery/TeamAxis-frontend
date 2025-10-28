@@ -3,7 +3,7 @@ import React, { useState } from 'react'
 const SERVER_API=process.env.VITE_API_URL
 
 
-function CreateTaskUser({onClose,fetchTask,dep,fetchdep}) {
+function CreateTaskUser({onClose,fetchTask,dep,fetchdep,notify}) {
     const [name,setName]=useState()
     const [desc,setDesc]=useState()
     const [sDate,setsDate]=useState()
@@ -12,7 +12,7 @@ function CreateTaskUser({onClose,fetchTask,dep,fetchdep}) {
     const uid=localStorage.getItem("uid")
 
     const addTask=async()=>{
-        await axios.post(`${SERVER_API}/api/task/create`,{
+        const response=await axios.post(`${SERVER_API}/api/task/create`,{
             name:name,
     description:desc,
     startDate:sDate,
@@ -24,8 +24,15 @@ function CreateTaskUser({onClose,fetchTask,dep,fetchdep}) {
                 Authorization:localStorage.getItem("token")
             }
         })
-        await fetchdep()
-        await fetchTask()
+        if(response.data.msg){
+    notify(true)
+    await fetchdep()
+    await fetchTask()
+  }
+  else{
+    notify(false)
+  }
+        
 
         onClose()
 

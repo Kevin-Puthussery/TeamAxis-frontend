@@ -4,7 +4,7 @@ import { FaCloudUploadAlt, FaFileExcel, FaFilePdf, FaFileWord, FaTimes } from 'r
 import axios from 'axios';
 const SERVER_API=process.env.VITE_API_URL
 
-function EditTaskUser({onClose,id,task,getAttachment,fetchTask}) {
+function EditTaskUser({onClose,id,task,getAttachment,fetchTask,notify}) {
     // Note: handleClose is defined but the modal closing logic is incomplete (it just logs to console).
     // In a real app, this should involve setting state to hide the modal.
     const handleClose = () => {
@@ -41,17 +41,23 @@ function EditTaskUser({onClose,id,task,getAttachment,fetchTask}) {
     }
 
 const EditTask=async()=>{
-  await axios.put(`${SERVER_API}/api/task/update/${id}`,form,{
+  const response=await axios.put(`${SERVER_API}/api/task/update/${id}`,form,{
     headers:{
       Authorization:localStorage.getItem("token")
     }
-  }) 
+  })
+  if(response.data.msg){
+    notify(true)
+  }
+  else{
+    notify(false)
+  }
 }
 
 const UploadFile=async()=>{
   const formData=new FormData()
     formData.append("file",attachedFiles[0])
-  await axios.post(`${SERVER_API}/api/task/upload/${id}`,
+  const response=await axios.post(`${SERVER_API}/api/task/upload/${id}`,
     formData
   ,{
     headers:{
@@ -59,7 +65,12 @@ const UploadFile=async()=>{
       Authorization:localStorage.getItem("token")
     }
   })
-
+if(response.data.msg){
+    notify(true)
+  }
+  else{
+    notify(false)
+  }
    
 }
 

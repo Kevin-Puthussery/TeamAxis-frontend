@@ -2,31 +2,24 @@ import axios from "axios"
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { Bounce, ToastContainer, toast } from 'react-toastify';
-
+const SERVER_API=process.env.VITE_API_URL
 
 function Login() {
     const [username,setUname]=useState("")
     const [password,setPassword]=useState("")
+    const [loading,setLoading]=useState(false)
     const navigate=useNavigate()
 
     const verifyUser=async()=>{
+        setLoading(true)
         try{
-        const resp=await axios.post('http://localhost:3000/api/user/signin',{
+        const resp=await axios.post(`${SERVER_API}/api/user/signin`,{
             username:username,
             password:password
         })
-            if(resp.data.admin){
-            localStorage.setItem("token",resp.data.token)
-            localStorage.setItem("role","admin")
-            navigate("/admin/home")
-            }
-            else if(resp.data.status=="Active"){
-            localStorage.setItem("token",resp.data.token)
-            localStorage.setItem("uid",resp.data.userId)
-            localStorage.setItem("role","user")
-            navigate("/user/home")
-            }
-            else{
+           
+            if (resp.data.msg){
+                setLoading(false)
                      toast.error('Restricted!', {
                     position: "top-center",
                     autoClose: 2500,
@@ -38,6 +31,21 @@ function Login() {
                     theme: "colored",
                     transition: Bounce,
                     });
+            }
+            else{
+                 if(resp.data.admin){
+            localStorage.setItem("token",resp.data.token)
+            localStorage.setItem("role","admin")
+            setLoading(false)
+            navigate("/admin/home")
+            }
+            if(resp.data.status=="Active"){
+            localStorage.setItem("token",resp.data.token)
+            localStorage.setItem("uid",resp.data.userId)
+            localStorage.setItem("role","user")
+            setLoading(false)
+            navigate("/user/home")
+            }
             }
     }
 catch(e){
@@ -92,8 +100,8 @@ catch(e){
                                     <a href="#" class="text-sm text-purple-500 hover:underline">Forgot password?</a>
                                 </div> */}
 
-                                <button type="button" onClick={()=>verifyUser()}
-                                    class="w-full bg-purple-500 hover:bg-purple-600 text-white py-3 rounded-xl font-semibold shadow-md transition duration-200">Sign In</button>
+                                <button type="button" onClick={()=>verifyUser()} disabled={loading}
+                                     class="w-full bg-purple-500 hover:bg-purple-600 text-white py-3 rounded-xl font-semibold shadow-md transition duration-200">{loading?"Loading...":"Sign In"}</button>
 
                                 {/* <p class="text-center text-sm text-gray-500">
                                     Don’t have an account yet?

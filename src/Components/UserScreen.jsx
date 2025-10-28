@@ -8,6 +8,7 @@ import axios from 'axios'
 import PendingTask from './PendingTask';
 import CompletedTask from './CompletedTask';
 import { jsPDF } from 'jspdf';
+import { Bounce, ToastContainer, toast } from 'react-toastify';
 const SERVER_API=process.env.VITE_API_URL
 
 
@@ -92,6 +93,32 @@ const [att, setAtt] = useState([]);
     });
     setAtt(Attachment.data.AttachmentView);
   };
+  const notify = (value) =>{
+          if (value)
+          {toast.success('Sucess', {
+  position: "top-right",
+  autoClose: 2500,
+  hideProgressBar: false,
+  closeOnClick: false,
+  pauseOnHover: true,
+  draggable: true,
+  progress: undefined,
+  theme: "colored",
+  transition: Bounce,})
+          }
+  else{
+      toast.error('Failed!', {
+  position: "top-right",
+  autoClose: 2500,
+  hideProgressBar: false,
+  closeOnClick: false,
+  pauseOnHover: true,
+  draggable: true,
+  progress: undefined,
+  theme: "colored",
+  transition: Bounce,
+  });
+  }};
 
     return (
         <>
@@ -130,6 +157,19 @@ const [att, setAtt] = useState([]);
                 <section>
                    <CompletedTask att={att} task={task} downloadTaskPDF={downloadTaskPDF}/>
                 </section>
+                <ToastContainer
+position="top-right"
+autoClose={2500}
+hideProgressBar={false}
+newestOnTop={false}
+closeOnClick={false}
+rtl={false}
+pauseOnFocusLoss
+draggable
+pauseOnHover
+theme="colored"
+transition={Bounce}
+/>
             </div>
 
             {/* 5. Conditionally Render the Modal */}
@@ -139,11 +179,12 @@ const [att, setAtt] = useState([]);
                 dep={dep[0]?.department}
                     onClose={closeModalc}
                 fetchdep={fetchdep}
+                notify={notify}
                 />
             )}
             {isModalOpene && (
                 <EditTaskUser id={id._id} task={id} getAttachment={getAttachment}
-                    onClose={closeModale} fetchTask={fetchTask}
+                    onClose={closeModale} fetchTask={fetchTask} notify={notify}
                 
                 />
             )}
